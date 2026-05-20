@@ -10,23 +10,47 @@
         :root {
             --bg-deep: #050508;
             --bg-surface: #0c0c14;
+            --bg-elevated: #13131f;
+            --border: rgba(124, 58, 237, 0.15);
+            --border-hover: rgba(124, 58, 237, 0.4);
             --accent-1: #7c3aed;
             --accent-2: #06b6d4;
+            --accent-3: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
             --text: #f0f0f5;
             --text-muted: #6b7280;
-            --border: rgba(124, 58, 237, 0.15);
+            --text-dim: #374151;
+            --glow-purple: 0 0 20px rgba(124,58,237,0.3);
+            --glow-cyan: 0 0 20px rgba(6,182,212,0.3);
         }
         body {
             background: var(--bg-deep);
             color: var(--text);
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
+            overflow-x: hidden;
         }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(124,58,237,0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(245,158,11,0.03) 0%, transparent 50%);
+            z-index: -1;
+            animation: bgPulse 8s ease-in-out infinite alternate;
+        }
+        @keyframes bgPulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
         .navbar {
             background: rgba(12, 12, 20, 0.7);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
             padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -39,16 +63,28 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            cursor: pointer;
         }
-        .navbar-links { display: flex; gap: 32px; }
-        .navbar-links a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
-        .navbar-links a:hover { color: var(--accent-1); }
+        .navbar-links { display: flex; gap: 32px; align-items: center; }
+        .navbar-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+            font-size: 14px;
+        }
+        .navbar-links a:hover, .navbar-links a.active { color: var(--accent-1); }
         .glass-panel {
             background: rgba(12, 12, 20, 0.7);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 32px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .glass-panel:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
         }
         .btn-glow {
             background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
@@ -58,6 +94,38 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border-radius: 14px;
+            z-index: -1;
+            filter: blur(12px);
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        .btn-glow:hover::after { opacity: 1; }
+        .btn-glow:hover { transform: translateY(-2px); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 14px 32px;
+            border-radius: 12px;
+            color: var(--text);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-outline:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
         }
         .page { display: none; min-height: calc(100vh - 80px); padding: 64px 32px; }
         .page.active { display: block; }
@@ -72,23 +140,101 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 80px; }
-        .stat-number { font-size: 48px; font-weight: 700; color: var(--accent-1); }
-        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
-        .feature-card { text-align: center; cursor: pointer; }
+        .hero-subtitle { font-size: 18px; color: var(--text-muted); margin-bottom: 32px; }
+        .hero-buttons { display: flex; gap: 16px; justify-content: center; margin-bottom: 64px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 80px; }
+        .stat-card { text-align: center; }
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--accent-1);
+            margin-bottom: 8px;
+        }
+        .stat-label { color: var(--text-muted); font-size: 14px; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-bottom: 80px; }
+        .feature-card {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover { transform: translateY(-8px); }
         .feature-icon { font-size: 48px; margin-bottom: 16px; }
+        .feature-card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+        .feature-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .generator-panel { max-width: 600px; margin: 0 auto 64px; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(12, 12, 20, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-1);
+        }
+        .output-cards { display: grid; gap: 16px; margin-top: 32px; }
+        .card-item {
+            background: rgba(12, 12, 20, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-copy {
+            background: var(--accent-1);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+        .card-copy:hover { opacity: 0.8; }
+        .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-top: 32px; }
+        .resource-card {
+            glass-panel;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.3s;
+        }
+        .resource-card:hover { transform: translateY(-4px); }
+        .resource-icon { font-size: 40px; margin-bottom: 12px; }
+        .resource-tag { display: inline-block; background: rgba(124, 58, 237, 0.2); color: var(--accent-1); padding: 4px 12px; border-radius: 4px; font-size: 12px; margin-top: 12px; }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 40px; }
+            .navbar-links { gap: 16px; }
+            .features { grid-template-columns: 1fr; }
+            .hero-buttons { flex-direction: column; }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="navbar-brand">⚡ DejaVu</div>
+        <div class="navbar-brand" onclick="navigate('/')">⚡ DejaVu</div>
         <div class="navbar-links">
-            <a onclick="navigate('/')">Home</a>
-            <a onclick="navigate('/generate')">Generate</a>
-            <a onclick="navigate('/bin-lookup')">BIN Lookup</a>
-            <a onclick="navigate('/address')">Address</a>
-            <a href="https://github.com/fatkhl/dejavu-tools-card" target="_blank">GitHub ↗</a>
+            <a onclick="navigate('/')" class="nav-link active" data-page="landing">Home</a>
+            <a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
+            <a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
+            <a onclick="navigate('/address')" class="nav-link" data-page="address">Address</a>
+            <a onclick="navigate('/about')" class="nav-link" data-page="about">About</a>
+            <a href="https://github.com/Fatkhl/dejavu-tools-card" target="_blank">GitHub ↗</a>
         </div>
     </nav>
 
@@ -96,30 +242,70 @@
         <div class="container">
             <div class="hero">
                 <h1>⚡ DejaVu Tools Card</h1>
-                <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 32px;">Generate. Validate. Dominate.</p>
-                <button class="btn-glow" onclick="navigate('/generate')">⚡ Generate</button>
+                <p class="hero-subtitle">Generate. Validate. Dominate.</p>
+                <p style="color: var(--text-muted); margin-bottom: 32px;">Premium credit card generator for developers & security researchers</p>
+                <div class="hero-buttons">
+                    <button class="btn-glow" onclick="navigate('/generate')">⚡ Generate</button>
+                    <button class="btn-outline" onclick="navigate('/about')">📖 Docs</button>
+                </div>
             </div>
+
             <div class="stats">
-                <div><div class="stat-number">12.4M+</div><div style="color: var(--text-muted);">Cards Generated</div></div>
-                <div><div class="stat-number">50+</div><div style="color: var(--text-muted);">Countries</div></div>
-                <div><div class="stat-number">99.9%</div><div style="color: var(--text-muted);">Luhn Valid</div></div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat1">0</div>
+                    <div class="stat-label">Cards Generated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat2">0</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat3">0</div>
+                    <div class="stat-label">Luhn Valid</div>
+                </div>
             </div>
+
             <div class="features">
                 <div class="glass-panel feature-card" onclick="navigate('/generate')">
                     <div class="feature-icon">💳</div>
                     <h3>CC Generator</h3>
-                    <p style="color: var(--text-muted);">Bulk generate valid credit cards</p>
+                    <p>Bulk generate valid credit cards with Luhn algorithm</p>
+                    <button class="btn-outline">Try →</button>
                 </div>
                 <div class="glass-panel feature-card" onclick="navigate('/bin-lookup')">
                     <div class="feature-icon">🔍</div>
                     <h3>BIN Lookup</h3>
-                    <p style="color: var(--text-muted);">Search BIN database</p>
+                    <p>Search BIN database, bank info, country & card type</p>
+                    <button class="btn-outline">Try →</button>
                 </div>
                 <div class="glass-panel feature-card" onclick="navigate('/address')">
                     <div class="feature-icon">🏠</div>
                     <h3>Address Generator</h3>
-                    <p style="color: var(--text-muted);">Generate fake identities</p>
+                    <p>Generate fake identities & addresses (50+ countries)</p>
+                    <button class="btn-outline">Try →</button>
                 </div>
+            </div>
+
+            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-top: 80px; margin-bottom: 32px;">🌐 External BIN Databases</h2>
+            <div class="resource-grid">
+                <a href="https://bincheck.io" target="_blank" class="glass-panel resource-card">
+                    <div class="resource-icon">🔍</div>
+                    <h3>BinCheck.io</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">Live BIN validation with bank details</p>
+                    <span class="resource-tag">Live Checker</span>
+                </a>
+                <a href="https://binlist.net" target="_blank" class="glass-panel resource-card">
+                    <div class="resource-icon">📊</div>
+                    <h3>BinList.net</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">Free open-source BIN lookup API</p>
+                    <span class="resource-tag">Free API</span>
+                </a>
+                <a href="https://mrchecker.net" target="_blank" class="glass-panel resource-card">
+                    <div class="resource-icon">⚡</div>
+                    <h3>MrChecker.net</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">Advanced BIN checker with bulk tools</p>
+                    <span class="resource-tag">Advanced</span>
+                </a>
             </div>
         </div>
     </div>
@@ -127,38 +313,173 @@
     <div id="generate" class="page">
         <div class="container">
             <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">💳 Credit Card Generator</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
-                <p>Generator page coming soon...</p>
+            <div class="glass-panel generator-panel">
+                <div class="form-group">
+                    <label>BIN Prefix (6-8 digits)</label>
+                    <input type="text" id="binInput" placeholder="515462" value="515462">
+                </div>
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <select id="quantity">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Format</label>
+                    <select id="format">
+                        <option value="pipe" selected>number|mm/yy|cvv</option>
+                        <option value="json">JSON</option>
+                        <option value="csv">CSV</option>
+                        <option value="plain">Plain (number only)</option>
+                    </select>
+                </div>
+                <button class="btn-glow" onclick="generateCards()" style="width: 100%;">⚡ GENERATE CARDS</button>
             </div>
+            <div id="output" style="margin-top: 32px;"></div>
         </div>
     </div>
 
     <div id="bin-lookup" class="page">
         <div class="container">
             <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🔍 BIN Lookup</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
-                <p>BIN Lookup page coming soon...</p>
+            <div class="glass-panel generator-panel">
+                <div class="form-group">
+                    <label>Enter BIN (6-8 digits)</label>
+                    <input type="text" id="binLookup" placeholder="515462">
+                </div>
+                <button class="btn-glow" onclick="lookupBin()" style="width: 100%;">🔍 LOOKUP</button>
             </div>
+            <div id="binResult" style="margin-top: 32px;"></div>
         </div>
     </div>
 
     <div id="address" class="page">
         <div class="container">
             <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🏠 Address Generator</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto;">
-                <p>Address Generator page coming soon...</p>
+            <div class="glass-panel generator-panel">
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <select id="addressQty">
+                        <option value="5" selected>5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                    </select>
+                </div>
+                <button class="btn-glow" onclick="generateAddresses()" style="width: 100%;">🏠 GENERATE IDENTITIES</button>
+            </div>
+            <div id="addressOutput" style="margin-top: 32px;"></div>
+        </div>
+    </div>
+
+    <div id="about" class="page">
+        <div class="container">
+            <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
+                <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 24px;">⚠️ Disclaimer</h2>
+                <p style="margin-bottom: 16px;">DejaVu Tools Card is for educational and authorized testing purposes only.</p>
+                <p style="margin-bottom: 16px;">Unauthorized use of generated credit card information is illegal.</p>
+                <p style="margin-bottom: 16px;">Users are responsible for compliance with all applicable laws and regulations.</p>
+                <h3 style="font-family: 'Space Grotesk', sans-serif; margin-top: 32px; margin-bottom: 16px;">Tech Stack</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li>HTML5 + CSS3 + Vanilla JavaScript</li>
+                    <li>Luhn Algorithm for card validation</li>
+                    <li>Hash routing for SPA navigation</li>
+                    <li>Glassmorphism + Neon glow effects</li>
+                </ul>
             </div>
         </div>
     </div>
 
     <script>
+        function luhnCheck(num) {
+            let sum = 0, isEven = false;
+            for (let i = num.length - 1; i >= 0; i--) {
+                let digit = parseInt(num[i], 10);
+                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
+                sum += digit;
+                isEven = !isEven;
+            }
+            return sum % 10 === 0;
+        }
+        function generateLuhn(bin) {
+            const length = 16;
+            let num = bin + '0'.repeat(length - bin.length - 1);
+            let sum = 0, isEven = false;
+            for (let i = num.length - 1; i >= 0; i--) {
+                let digit = parseInt(num[i], 10);
+                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
+                sum += digit;
+                isEven = !isEven;
+            }
+            const checkDigit = (10 - (sum % 10)) % 10;
+            return num + checkDigit;
+        }
         function navigate(page) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             const pageId = page === '/' ? 'landing' : page.substring(1);
             document.getElementById(pageId).classList.add('active');
+            const link = document.querySelector(`[data-page="${pageId}"]`);
+            if (link) link.classList.add('active');
             window.location.hash = page;
         }
+        function generateCards() {
+            const bin = document.getElementById('binInput').value;
+            const qty = parseInt(document.getElementById('quantity').value);
+            const format = document.getElementById('format').value;
+            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+            let cards = [];
+            for (let i = 0; i < qty; i++) {
+                const cardNum = generateLuhn(bin);
+                const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+                const year = String(Math.floor(Math.random() * 6) + 27).padStart(2, '0');
+                const cvv = String(Math.floor(Math.random() * 900) + 100);
+                if (format === 'pipe') cards.push(`${cardNum} | ${month}/${year} | ${cvv}`);
+                else if (format === 'json') cards.push({number: cardNum, expiry: `${month}/${year}`, cvv: cvv});
+                else if (format === 'csv') cards.push(`${cardNum},${month}/${year},${cvv}`);
+                else cards.push(cardNum);
+            }
+            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated Cards</h3>';
+            output += '<div class="output-cards">';
+            cards.forEach(card => {
+                const cardStr = typeof card === 'string' ? card : JSON.stringify(card);
+                output += `<div class="card-item"><span>${cardStr}</span><button class="card-copy" onclick="navigator.clipboard.writeText('${cardStr.replace(/'/g, "\'")}')">📋 Copy</button></div>`;
+            });
+            output += '</div></div>';
+            document.getElementById('output').innerHTML = output;
+        }
+        function lookupBin() {
+            const bin = document.getElementById('binLookup').value;
+            if (!bin || bin.length < 6) { alert('Enter valid BIN'); return; }
+            const result = `<div class="glass-panel"><h3 style="margin-bottom: 16px;">BIN: ${bin}</h3><p><strong>Brand:</strong> Mastercard</p><p><strong>Type:</strong> Debit</p><p><strong>Bank:</strong> State Bank of India</p><p><strong>Country:</strong> 🇮🇳 India</p><button class="btn-glow" onclick="navigate('/generate')" style="margin-top: 16px;">⚡ Generate from this BIN</button></div>`;
+            document.getElementById('binResult').innerHTML = result;
+        }
+        function generateAddresses() {
+            const qty = parseInt(document.getElementById('addressQty').value);
+            const names = ['Rajesh Kumar', 'Priya Sharma', 'Amit Patel', 'Neha Singh', 'Vikram Reddy'];
+            const cities = ['Bengaluru', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai'];
+            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated Identities</h3>';
+            output += '<div class="output-cards">';
+            for (let i = 0; i < qty; i++) {
+                const name = names[Math.floor(Math.random() * names.length)];
+                const city = cities[Math.floor(Math.random() * cities.length)];
+                const phone = '+91 ' + Math.floor(Math.random() * 9000000000 + 1000000000);
+                const address = `${Math.floor(Math.random() * 100) + 1}, ${city}`;
+                output += `<div class="card-item"><div><strong>${name}</strong><br>${address}<br>${phone}</div><button class="card-copy" onclick="navigator.clipboard.writeText('${name}\n${address}\n${phone}')">📋 Copy</button></div>`;
+            }
+            output += '</div></div>';
+            document.getElementById('addressOutput').innerHTML = output;
+        }
         window.addEventListener('hashchange', () => navigate(window.location.hash || '/'));
+        if (window.location.hash) navigate(window.location.hash);
+        // Animate stats on load
+        setTimeout(() => {
+            document.getElementById('stat1').textContent = '12.4M+';
+            document.getElementById('stat2').textContent = '50+';
+            document.getElementById('stat3').textContent = '99.9%';
+        }, 500);
     </script>
 </body>
 </html>
