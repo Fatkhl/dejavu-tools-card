@@ -1,667 +1,440 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DejaVu Tools Card</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg-deep: #ffffff;
-            --bg-surface: #fff5f5;
-            --accent-1: #dc2626;
-            --accent-2: #ef4444;
-            --text: #1f2937;
-            --text-muted: #6b7280;
-            --border: rgba(220, 38, 38, 0.15);
-        }
-        body {
-            background: var(--bg-deep);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(220,38,38,0.06) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(239,68,68,0.04) 0%, transparent 50%),
-                        radial-gradient(circle at 50% 80%, rgba(220,38,38,0.03) 0%, transparent 50%);
-            z-index: -1;
-        }
-        .navbar {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 32px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar-brand {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #dc2626, #ef4444);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            cursor: pointer;
-        }
-        .navbar-links { display: flex; gap: 32px; align-items: center; }
-        .navbar-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.3s;
-            font-size: 14px;
-        }
-        .navbar-links a:hover, .navbar-links a.active { color: #dc2626; }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 32px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.05);
-        }
-        .glass-panel:hover {
-            border-color: rgba(220, 38, 38, 0.4);
-            box-shadow: 0 8px 30px rgba(220, 38, 38, 0.1);
-        }
-        .btn-glow {
-            background: linear-gradient(135deg, #dc2626, #ef4444);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        .btn-glow:hover { transform: translateY(-2px); }
-        .btn-small {
-            background: #dc2626;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            color: white;
-            cursor: pointer;
-            font-size: 12px;
-            transition: opacity 0.3s;
-        }
-        .btn-small:hover { opacity: 0.8; }
-        .page { display: none; min-height: calc(100vh - 80px); padding: 64px 32px; }
-        .page.active { display: block; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .hero { text-align: center; margin-bottom: 80px; }
-        .hero h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 64px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, #dc2626, #ef4444);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 80px; }
-        .stat-card { text-align: center; }
-        .stat-number {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 48px;
-            font-weight: 700;
-            color: #dc2626;
-        }
-        .stat-label { color: var(--text-muted); font-size: 14px; }
-        .form-group { margin-bottom: 24px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 245, 245, 0.7);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: 'JetBrains Mono', monospace;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #dc2626;
-        }
-        .output-cards { display: grid; gap: 16px; margin-top: 32px; }
-        .card-item {
-            background: rgba(255, 245, 245, 0.7);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            word-break: break-all;
-        }
-        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px; }
-        .result-card {
-            background: rgba(255, 245, 245, 0.7);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-        }
-        .result-card p { margin-bottom: 8px; font-size: 14px; }
-        .result-card strong { color: #dc2626; }
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 40px; }
-            .stats { grid-template-columns: 1fr; }
-            .card-item { flex-direction: column; align-items: flex-start; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DejaVu Tools Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0b0b0f;--surface:#12121a;--accent:#ff2d55;--accent2:#ff6b6b;--text:#f0f0f5;--muted:#6b7280;--border:rgba(255,45,85,0.15);--glow:0 0 20px rgba(255,45,85,0.3)}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,45,85,0.04) 0%,transparent 50%),radial-gradient(circle at 70% 80%,rgba(255,107,107,0.03) 0%,transparent 50%);z-index:-1;animation:bgPulse 8s ease-in-out infinite alternate}
+@keyframes bgPulse{0%{opacity:.5}100%{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(255,45,85,0.3)}50%{box-shadow:0 0 20px rgba(255,45,85,0.6)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes typing{from{width:0}to{width:100%}}
+@keyframes blink{50%{border-color:transparent}}
+@keyframes particle{0%{transform:translateY(0) translateX(0);opacity:1}100%{transform:translateY(-100vh) translateX(50px);opacity:0}}
+.cursor-glow{position:fixed;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,45,85,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;transition:transform 0.1s}
+.navbar{position:sticky;top:0;z-index:100;background:rgba(11,11,15,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center}
+.navbar-brand{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:var(--accent);cursor:pointer}
+.navbar-links{display:flex;gap:28px;align-items:center}
+.navbar-links a{color:var(--muted);text-decoration:none;cursor:pointer;font-size:14px;font-weight:500;transition:color 0.3s;position:relative}
+.navbar-links a:hover,.navbar-links a.active{color:var(--accent)}
+.navbar-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--accent);transition:width 0.3s}
+.navbar-links a:hover::after,.navbar-links a.active::after{width:100%}
+.page{display:none;min-height:calc(100vh - 70px)}
+.page.active{display:block}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.hero{min-height:90vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;overflow:hidden;padding:80px 24px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(40px,8vw,72px);font-weight:700;margin-bottom:16px;background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:18px;color:var(--muted);margin-bottom:40px;max-width:500px}
+.hero-buttons{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;padding:14px 32px;border-radius:12px;color:#fff;font-weight:600;cursor:pointer;font-size:14px;transition:all 0.3s;position:relative;overflow:hidden}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,45,85,0.4)}
+.btn-secondary{background:transparent;border:1px solid var(--border);padding:14px 32px;border-radius:12px;color:var(--text);font-weight:600;cursor:pointer;font-size:14px;transition:all 0.3s}
+.btn-secondary:hover{border-color:var(--accent);box-shadow:var(--glow)}
+.particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.particle{position:absolute;width:3px;height:3px;background:var(--accent);border-radius:50%;opacity:0.4;animation:particle 8s linear infinite}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;padding:80px 24px}
+.stat-card{text-align:center;padding:32px;background:rgba(18,18,26,0.6);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:16px;transition:all 0.3s}
+.stat-card:hover{border-color:rgba(255,45,85,0.4);box-shadow:var(--glow);transform:translateY(-4px)}
+.stat-number{font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.stat-label{color:var(--muted);font-size:14px}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;padding:80px 24px}
+.feature-card{background:rgba(18,18,26,0.6);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:16px;padding:32px;cursor:pointer;transition:all 0.3s}
+.feature-card:hover{border-color:rgba(255,45,85,0.4);box-shadow:var(--glow);transform:translateY(-4px) scale(1.01)}
+.feature-icon{font-size:40px;margin-bottom:16px}
+.feature-card h3{font-family:'Space Grotesk',sans-serif;font-size:18px;margin-bottom:8px}
+.feature-card p{color:var(--muted);font-size:14px}
+.ticker-wrap{overflow:hidden;padding:20px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:40px 0}
+.ticker{display:flex;animation:ticker 30s linear infinite;white-space:nowrap}
+.ticker-item{padding:0 40px;color:var(--muted);font-size:14px}
+.ticker-item span{color:var(--accent)}
+.glass-panel{background:rgba(18,18,26,0.6);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:16px;padding:32px;transition:all 0.3s}
+.glass-panel:hover{border-color:rgba(255,45,85,0.3)}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;color:var(--muted)}
+.form-group input,.form-group select{width:100%;padding:12px 16px;background:rgba(11,11,15,0.8);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;transition:border-color 0.3s}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 10px rgba(255,45,85,0.2)}
+.output-cards{display:grid;gap:12px;margin-top:24px}
+.card-item{background:rgba(11,11,15,0.8);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s}
+.card-item:hover{border-color:rgba(255,45,85,0.4)}
+.btn-small{background:var(--accent);border:none;padding:6px 14px;border-radius:6px;color:#fff;cursor:pointer;font-size:12px;transition:all 0.3s}
+.btn-small:hover{opacity:0.8;transform:scale(1.05)}
+.result-card{background:rgba(11,11,15,0.8);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:12px}
+.result-card p{margin-bottom:6px;font-size:14px}
+.result-card strong{color:var(--accent)}
+.section-title{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;margin-bottom:16px;text-align:center}
+.section-sub{color:var(--muted);text-align:center;margin-bottom:48px;font-size:16px}
+.footer{border-top:1px solid var(--border);padding:40px 24px;text-align:center;color:var(--muted);font-size:14px;margin-top:80px}
+.footer::before{content:'';display:block;width:100px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin:0 auto 24px;animation:glow 3s ease-in-out infinite}
+.fade-up{opacity:0;transform:translateY(30px);transition:all 0.6s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+@media(max-width:768px){
+.navbar-links{gap:16px;font-size:12px}
+.hero h1{font-size:36px}
+.features{grid-template-columns:1fr}
+.stats{grid-template-columns:repeat(2,1fr)}
+.hero-buttons{flex-direction:column;align-items:center}
+}
+</style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-brand" onclick="navigate('/')">⚡ DejaVu</div>
-        <div class="navbar-links">
-            <a onclick="navigate('/')" class="nav-link active" data-page="landing">Home</a>
-            <a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
-            <a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
-            <a onclick="navigate('/address')" class="nav-link" data-page="address">Address</a>
-        </div>
-    </nav>
+<div class="cursor-glow" id="cursorGlow"></div>
+<nav class="navbar">
+<div class="navbar-brand" onclick="navigate('/')">⚡ DejaVu</div>
+<div class="navbar-links">
+<a onclick="navigate('/')" class="nav-link active" data-page="landing">Home</a>
+<a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
+<a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
+<a onclick="navigate('/address')" class="nav-link" data-page="address">Address</a>
+</div>
+</nav>
 
-    <div id="landing" class="page active">
-        <div class="container">
-            <div class="hero">
-                <h1>⚡ DejaVu Tools Card</h1>
-                <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 32px;">Generate. Validate. Dominate.</p>
-            </div>
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-cards">0</div>
-                    <div class="stat-label">Cards Generated</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-countries">50</div>
-                    <div class="stat-label">Countries</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-valid">0</div>
-                    <div class="stat-label">Luhn Valid</div>
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- LANDING PAGE -->
+<div id="landing" class="page active">
+<div class="hero">
+<div class="particles" id="particles"></div>
+<h1>Generate. Validate. Dominate.</h1>
+<p class="hero-sub">Premium credit card tools for developers & security researchers. Fast, accurate, and beautifully crafted.</p>
+<div class="hero-buttons">
+<button class="btn-primary" onclick="navigate('/generate')">⚡ Generate Card</button>
+<button class="btn-secondary" onclick="navigate('/bin-lookup')">🔍 BIN Lookup</button>
+</div>
+</div>
 
-    <div id="generate" class="page">
-        <div class="container">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">💳 Credit Card Generator</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-                <div class="form-group">
-                    <label>BIN Prefix (optional, 6-8 digits)</label>
-                    <input type="text" id="binInput" placeholder="515462" value="515462">
-                </div>
-                <div class="form-group">
-                    <label>Quantity (1-100)</label>
-                    <input type="number" id="quantity" min="1" max="100" value="10">
-                </div>
-                <div class="form-group">
-                    <label>Network</label>
-                    <select id="network">
-                        <option value="visa">Visa</option>
-                        <option value="mastercard" selected>Mastercard</option>
-                        <option value="amex">American Express</option>
-                    </select>
-                </div>
-                <button class="btn-glow" onclick="generateCards()" style="width: 100%;">⚡ GENERATE CARDS</button>
-            </div>
-            <div id="output"></div>
-        </div>
-    </div>
+<div class="container">
+<div class="stats">
+<div class="stat-card fade-up"><div class="stat-number" id="s1">0</div><div class="stat-label">Cards Generated</div></div>
+<div class="stat-card fade-up"><div class="stat-number" id="s2">0</div><div class="stat-label">Countries</div></div>
+<div class="stat-card fade-up"><div class="stat-number" id="s3">0</div><div class="stat-label">Luhn Valid</div></div>
+<div class="stat-card fade-up"><div class="stat-number" id="s4">0</div><div class="stat-label">Active Users</div></div>
+</div>
+</div>
 
-    <div id="bin-lookup" class="page">
-        <div class="container">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🔍 BIN Lookup</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-                <div class="form-group">
-                    <label>Enter BIN (6 digits)</label>
-                    <input type="text" id="binLookup" placeholder="515462" maxlength="8">
-                </div>
-                <button class="btn-glow" onclick="lookupBin()" style="width: 100%;">🔍 LOOKUP</button>
-            </div>
-            <div id="binResult"></div>
+<div class="ticker-wrap">
+<div class="ticker" id="ticker">
+<div class="ticker-item">🇩🇪 <span>Card generated</span> from Germany</div>
+<div class="ticker-item">🇺🇸 <span>BIN 414720</span> checked ✓</div>
+<div class="ticker-item">🇯🇵 <span>Address generated</span> for Japan</div>
+<div class="ticker-item">🇧🇷 <span>Card generated</span> from Brazil</div>
+<div class="ticker-item">🇬🇧 <span>BIN 539860</span> validated ✓</div>
+<div class="ticker-item">🇰🇷 <span>Identity created</span> for Korea</div>
+<div class="ticker-item">🇮🇩 <span>Card generated</span> from Indonesia</div>
+<div class="ticker-item">🇫🇷 <span>BIN 497010</span> checked ✓</div>
+<div class="ticker-item">🇩🇪 <span>Card generated</span> from Germany</div>
+<div class="ticker-item">🇺🇸 <span>BIN 414720</span> checked ✓</div>
+<div class="ticker-item">🇯🇵 <span>Address generated</span> for Japan</div>
+<div class="ticker-item">🇧🇷 <span>Card generated</span> from Brazil</div>
+<div class="ticker-item">🇬🇧 <span>BIN 539860</span> validated ✓</div>
+<div class="ticker-item">🇰🇷 <span>Identity created</span> for Korea</div>
+<div class="ticker-item">🇮🇩 <span>Card generated</span> from Indonesia</div>
+<div class="ticker-item">🇫🇷 <span>BIN 497010</span> checked ✓</div>
+</div>
+</div>
 
-            <h3 style="font-family: 'Space Grotesk', sans-serif; margin-top: 48px; margin-bottom: 16px;">🏦 Popular BINs by Country</h3>
-            <div class="form-group" style="max-width: 400px; margin-bottom: 24px;">
-                <select id="binCountryFilter" onchange="filterBins()">
-                    <option value="all">All Countries</option>
-                    <option value="US">🇺🇸 United States</option>
-                    <option value="GB">🇬🇧 United Kingdom</option>
-                    <option value="CA">🇨🇦 Canada</option>
-                    <option value="AU">🇦🇺 Australia</option>
-                    <option value="IN">🇮🇳 India</option>
-                    <option value="ID">🇮🇩 Indonesia</option>
-                    <option value="KR">🇰🇷 South Korea</option>
-                    <option value="JP">🇯🇵 Japan</option>
-                    <option value="BR">🇧🇷 Brazil</option>
-                    <option value="DE">🇩🇪 Germany</option>
-                    <option value="FR">🇫🇷 France</option>
-                    <option value="MX">🇲🇽 Mexico</option>
-                    <option value="TR">🇹🇷 Turkey</option>
-                    <option value="RU">🇷🇺 Russia</option>
-                    <option value="NG">🇳🇬 Nigeria</option>
-                    <option value="PH">🇵🇭 Philippines</option>
-                    <option value="TH">🇹🇭 Thailand</option>
-                    <option value="MY">🇲🇾 Malaysia</option>
-                    <option value="SG">🇸🇬 Singapore</option>
-                    <option value="VN">🇻🇳 Vietnam</option>
-                    <option value="ES">🇪🇸 Spain</option>
-                    <option value="IT">🇮🇹 Italy</option>
-                    <option value="NL">🇳🇱 Netherlands</option>
-                    <option value="SE">🇸🇪 Sweden</option>
-                    <option value="NO">🇳🇴 Norway</option>
-                    <option value="DK">🇩🇰 Denmark</option>
-                    <option value="FI">🇫🇮 Finland</option>
-                    <option value="CH">🇨🇭 Switzerland</option>
-                    <option value="AT">🇦🇹 Austria</option>
-                    <option value="BE">🇧🇪 Belgium</option>
-                    <option value="PL">🇵🇱 Poland</option>
-                    <option value="CZ">🇨🇿 Czech Republic</option>
-                    <option value="HU">🇭🇺 Hungary</option>
-                    <option value="RO">🇷🇴 Romania</option>
-                    <option value="UA">🇺🇦 Ukraine</option>
-                    <option value="AE">🇦🇪 UAE</option>
-                    <option value="SA">🇸🇦 Saudi Arabia</option>
-                    <option value="EG">🇪🇬 Egypt</option>
-                    <option value="ZA">🇿🇦 South Africa</option>
-                    <option value="AR">🇦🇷 Argentina</option>
-                    <option value="CL">🇨🇱 Chile</option>
-                    <option value="CO">🇨🇴 Colombia</option>
-                    <option value="PE">🇵🇪 Peru</option>
-                    <option value="CN">🇨🇳 China</option>
-                    <option value="TW">🇹🇼 Taiwan</option>
-                    <option value="NZ">🇳🇿 New Zealand</option>
-                    <option value="PK">🇵🇰 Pakistan</option>
-                    <option value="BD">🇧🇩 Bangladesh</option>
-                    <option value="LK">🇱🇰 Sri Lanka</option>
-                </select>
-            </div>
-            <div id="binTable" class="output-cards"></div>
-        </div>
-    </div>
+<div class="container">
+<h2 class="section-title fade-up">Premium Tools</h2>
+<p class="section-sub fade-up">Everything you need in one place</p>
+<div class="features">
+<div class="feature-card fade-up" onclick="navigate('/generate')"><div class="feature-icon">💳</div><h3>Card Generator</h3><p>Bulk generate Luhn-valid cards with custom BIN prefix</p></div>
+<div class="feature-card fade-up" onclick="navigate('/bin-lookup')"><div class="feature-icon">🔍</div><h3>BIN Lookup</h3><p>Instant bank info, country, and card type lookup</p></div>
+<div class="feature-card fade-up" onclick="navigate('/address')"><div class="feature-icon">🏠</div><h3>Address Generator</h3><p>Generate realistic identities for 50+ countries</p></div>
+<div class="feature-card fade-up"><div class="feature-icon">✅</div><h3>Validation Checker</h3><p>Verify card numbers with Luhn algorithm instantly</p></div>
+<div class="feature-card fade-up"><div class="feature-icon">🔐</div><h3>Secure Randomizer</h3><p>Cryptographically random CVV and expiry dates</p></div>
+<div class="feature-card fade-up"><div class="feature-icon">📦</div><h3>Export Feature</h3><p>Download generated data as CSV, JSON, or plain text</p></div>
+</div>
+</div>
 
-    <div id="address" class="page">
-        <div class="container">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🏠 Address Generator</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-                <div class="form-group">
-                    <label>Quantity (1-50)</label>
-                    <input type="number" id="addressQty" min="1" max="50" value="5">
-                </div>
-                <div class="form-group">
-                    <label>Country</label>
-                    <select id="countrySelect">
-                        <option value="en_US" selected>🇺🇸 United States</option>
-                        <option value="en_GB">🇬🇧 United Kingdom</option>
-                        <option value="de_DE">🇩🇪 Germany</option>
-                        <option value="fr_FR">🇫🇷 France</option>
-                        <option value="it_IT">🇮🇹 Italy</option>
-                        <option value="es_ES">🇪🇸 Spain</option>
-                        <option value="pt_BR">🇧🇷 Brazil</option>
-                        <option value="ja_JP">🇯🇵 Japan</option>
-                        <option value="ko_KR">🇰🇷 South Korea</option>
-                        <option value="zh_CN">🇨🇳 China</option>
-                        <option value="zh_TW">🇹🇼 Taiwan</option>
-                        <option value="id_ID">🇮🇩 Indonesia</option>
-                        <option value="vi_VN">🇻🇳 Vietnam</option>
-                        <option value="th_TH">🇹🇭 Thailand</option>
-                        <option value="en_AU">🇦🇺 Australia</option>
-                        <option value="en_CA">🇨🇦 Canada</option>
-                        <option value="en_IN">🇮🇳 India</option>
-                        <option value="en_NZ">🇳🇿 New Zealand</option>
-                        <option value="en_ZA">🇿🇦 South Africa</option>
-                        <option value="ru_RU">🇷🇺 Russia</option>
-                        <option value="uk_UA">🇺🇦 Ukraine</option>
-                        <option value="pl_PL">🇵🇱 Poland</option>
-                        <option value="nl_NL">🇳🇱 Netherlands</option>
-                        <option value="sv_SE">🇸🇪 Sweden</option>
-                        <option value="nb_NO">🇳🇴 Norway</option>
-                        <option value="da_DK">🇩🇰 Denmark</option>
-                        <option value="fi_FI">🇫🇮 Finland</option>
-                        <option value="tr_TR">🇹🇷 Turkey</option>
-                        <option value="ar_SA">🇸🇦 Saudi Arabia</option>
-                        <option value="fa_IR">🇮🇷 Iran</option>
-                        <option value="he_IL">🇮🇱 Israel</option>
-                        <option value="el_GR">🇬🇷 Greece</option>
-                        <option value="hu_HU">🇭🇺 Hungary</option>
-                        <option value="cs_CZ">🇨🇿 Czech Republic</option>
-                        <option value="sk_SK">🇸🇰 Slovakia</option>
-                        <option value="ro_RO">🇷🇴 Romania</option>
-                        <option value="bg_BG">🇧🇬 Bulgaria</option>
-                        <option value="hr_HR">🇭🇷 Croatia</option>
-                        <option value="sr_RS">🇷🇸 Serbia</option>
-                        <option value="sl_SI">🇸🇮 Slovenia</option>
-                        <option value="lt_LT">🇱🇹 Lithuania</option>
-                        <option value="lv_LV">🇱🇻 Latvia</option>
-                        <option value="de_AT">🇦🇹 Austria</option>
-                        <option value="de_CH">🇨🇭 Switzerland</option>
-                        <option value="fr_BE">🇧🇪 Belgium</option>
-                        <option value="es_AR">🇦🇷 Argentina</option>
-                        <option value="es_MX">🇲🇽 Mexico</option>
-                        <option value="pt_PT">🇵🇹 Portugal</option>
-                    </select>
-                </div>
-                <button class="btn-glow" onclick="generateAddress()" style="width: 100%; margin-bottom: 12px;">🏠 GENERATE ADDRESS</button>
-                <button class="btn-glow" onclick="copyAllAddress()" style="width: 100%; background: rgba(124, 58, 237, 0.5);">📋 COPY ALL</button>
-            </div>
-            <div id="addressResult"></div>
-        </div>
-    </div>
+<div class="footer">
+<p>⚡ DejaVu Tools Card — For educational and testing purposes only</p>
+<p style="margin-top:8px;font-size:12px;">Built with ❤️ | <a href="https://github.com/Fatkhl/dejavu-tools-card" target="_blank" style="color:var(--accent);text-decoration:none;">GitHub</a></p>
+</div>
+</div>
 
-    <script>
-        
+<!-- GENERATE PAGE -->
+<div id="generate" class="page">
+<div class="container" style="padding-top:48px;padding-bottom:80px;">
+<h2 class="section-title">💳 Card Generator</h2>
+<p class="section-sub">Generate Luhn-valid credit card numbers</p>
+<div class="glass-panel" style="max-width:600px;margin:0 auto 48px;">
+<div class="form-group"><label>BIN Prefix (6-8 digits)</label><input type="text" id="binInput" placeholder="515462" value="515462"></div>
+<div class="form-group"><label>Quantity (1-100)</label><input type="number" id="quantity" min="1" max="100" value="10"></div>
+<div class="form-group"><label>Network</label><select id="network"><option value="visa">Visa</option><option value="mastercard" selected>Mastercard</option><option value="amex">American Express</option></select></div>
+<button class="btn-primary" onclick="generateCards()" style="width:100%">⚡ GENERATE CARDS</button>
+</div>
+<div id="output"></div>
+</div>
+</div>
 
-        let currentAddress = null;
-        let cardsGenerated = 0;
-        let luhnValid = 0;
+<!-- BIN LOOKUP PAGE -->
+<div id="bin-lookup" class="page">
+<div class="container" style="padding-top:48px;padding-bottom:80px;">
+<h2 class="section-title">🔍 BIN Lookup</h2>
+<p class="section-sub">Search bank info by BIN number</p>
+<div class="glass-panel" style="max-width:600px;margin:0 auto 48px;">
+<div class="form-group"><label>Enter BIN (6 digits)</label><input type="text" id="binLookup" placeholder="515462" maxlength="8"></div>
+<button class="btn-primary" onclick="lookupBin()" style="width:100%">🔍 LOOKUP</button>
+</div>
+<div id="binResult"></div>
 
-        function luhnCheck(num) {
-            let sum = 0, isEven = false;
-            for (let i = num.length - 1; i >= 0; i--) {
-                let digit = parseInt(num[i], 10);
-                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
-                sum += digit;
-                isEven = !isEven;
-            }
-            return sum % 10 === 0;
-        }
+<h3 style="font-family:'Space Grotesk',sans-serif;margin-top:48px;margin-bottom:16px;font-size:24px;">🏦 Popular BINs</h3>
+<div class="form-group" style="max-width:400px;margin-bottom:24px;">
+<select id="binCountryFilter" onchange="filterBins()">
+<option value="all">All Countries</option>
+<option value="US">🇺🇸 United States</option><option value="GB">🇬🇧 United Kingdom</option><option value="CA">🇨🇦 Canada</option><option value="AU">🇦🇺 Australia</option><option value="IN">🇮🇳 India</option><option value="ID">🇮🇩 Indonesia</option><option value="KR">🇰🇷 South Korea</option><option value="JP">🇯🇵 Japan</option><option value="BR">🇧🇷 Brazil</option><option value="DE">🇩🇪 Germany</option><option value="FR">🇫🇷 France</option><option value="MX">🇲🇽 Mexico</option><option value="TR">🇹🇷 Turkey</option><option value="RU">🇷🇺 Russia</option><option value="NG">🇳🇬 Nigeria</option><option value="PH">🇵🇭 Philippines</option><option value="TH">🇹🇭 Thailand</option><option value="MY">🇲🇾 Malaysia</option><option value="SG">🇸🇬 Singapore</option><option value="VN">🇻🇳 Vietnam</option><option value="ES">🇪🇸 Spain</option><option value="IT">🇮🇹 Italy</option><option value="NL">🇳🇱 Netherlands</option><option value="SE">🇸🇪 Sweden</option><option value="NO">🇳🇴 Norway</option><option value="DK">🇩🇰 Denmark</option><option value="FI">🇫🇮 Finland</option><option value="CH">🇨🇭 Switzerland</option><option value="AT">🇦🇹 Austria</option><option value="BE">🇧🇪 Belgium</option><option value="PL">🇵🇱 Poland</option><option value="CZ">🇨🇿 Czech Republic</option><option value="HU">🇭🇺 Hungary</option><option value="RO">🇷🇴 Romania</option><option value="UA">🇺🇦 Ukraine</option><option value="AE">🇦🇪 UAE</option><option value="SA">🇸🇦 Saudi Arabia</option><option value="EG">🇪🇬 Egypt</option><option value="ZA">🇿🇦 South Africa</option><option value="AR">🇦🇷 Argentina</option><option value="CL">🇨🇱 Chile</option><option value="CO">🇨🇴 Colombia</option><option value="PE">🇵🇪 Peru</option><option value="CN">🇨🇳 China</option><option value="TW">🇹🇼 Taiwan</option><option value="NZ">🇳🇿 New Zealand</option><option value="PK">🇵🇰 Pakistan</option><option value="BD">🇧🇩 Bangladesh</option><option value="LK">🇱🇰 Sri Lanka</option>
+</select>
+</div>
+<div id="binTable" class="output-cards"></div>
+</div>
+</div>
 
-        function generateLuhn(bin) {
-            const length = 16;
-            // Fill remaining digits with random numbers
-            let num = bin;
-            while (num.length < length - 1) {
-                num += Math.floor(Math.random() * 10).toString();
-            }
-            // Calculate Luhn check digit
-            let sum = 0, isEven = true;
-            for (let i = num.length - 1; i >= 0; i--) {
-                let digit = parseInt(num[i], 10);
-                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
-                sum += digit;
-                isEven = !isEven;
-            }
-            const checkDigit = (10 - (sum % 10)) % 10;
-            return num + checkDigit;
-        }
+<!-- ADDRESS PAGE -->
+<div id="address" class="page">
+<div class="container" style="padding-top:48px;padding-bottom:80px;">
+<h2 class="section-title">🏠 Address Generator</h2>
+<p class="section-sub">Generate realistic identities for 50+ countries</p>
+<div class="glass-panel" style="max-width:600px;margin:0 auto 48px;">
+<div class="form-group"><label>Quantity (1-50)</label><input type="number" id="addressQty" min="1" max="50" value="5"></div>
+<div class="form-group"><label>Country</label>
+<select id="countrySelect">
+<option value="en_US" selected>🇺🇸 United States</option><option value="en_GB">🇬🇧 United Kingdom</option><option value="de_DE">🇩🇪 Germany</option><option value="fr_FR">🇫🇷 France</option><option value="it_IT">🇮🇹 Italy</option><option value="es_ES">🇪🇸 Spain</option><option value="pt_BR">🇧🇷 Brazil</option><option value="ja_JP">🇯🇵 Japan</option><option value="ko_KR">🇰🇷 South Korea</option><option value="zh_CN">🇨🇳 China</option><option value="zh_TW">🇹🇼 Taiwan</option><option value="id_ID">🇮🇩 Indonesia</option><option value="vi_VN">🇻🇳 Vietnam</option><option value="th_TH">🇹🇭 Thailand</option><option value="en_AU">🇦🇺 Australia</option><option value="en_CA">🇨🇦 Canada</option><option value="en_IN">🇮🇳 India</option><option value="en_NZ">🇳🇿 New Zealand</option><option value="en_ZA">🇿🇦 South Africa</option><option value="ru_RU">🇷🇺 Russia</option><option value="uk_UA">🇺🇦 Ukraine</option><option value="pl_PL">🇵🇱 Poland</option><option value="nl_NL">🇳🇱 Netherlands</option><option value="sv_SE">🇸🇪 Sweden</option><option value="nb_NO">🇳🇴 Norway</option><option value="da_DK">🇩🇰 Denmark</option><option value="fi_FI">🇫🇮 Finland</option><option value="tr_TR">🇹🇷 Turkey</option><option value="ar_SA">🇸🇦 Saudi Arabia</option><option value="fa_IR">🇮🇷 Iran</option><option value="he_IL">🇮🇱 Israel</option><option value="el_GR">🇬🇷 Greece</option><option value="hu_HU">🇭🇺 Hungary</option><option value="cs_CZ">🇨🇿 Czech Republic</option><option value="sk_SK">🇸🇰 Slovakia</option><option value="ro_RO">🇷🇴 Romania</option><option value="bg_BG">🇧🇬 Bulgaria</option><option value="hr_HR">🇭🇷 Croatia</option><option value="sr_RS">🇷🇸 Serbia</option><option value="sl_SI">🇸🇮 Slovenia</option><option value="lt_LT">🇱🇹 Lithuania</option><option value="lv_LV">🇱🇻 Latvia</option><option value="de_AT">🇦🇹 Austria</option><option value="de_CH">🇨🇭 Switzerland</option><option value="fr_BE">🇧🇪 Belgium</option><option value="es_AR">🇦🇷 Argentina</option><option value="es_MX">🇲🇽 Mexico</option><option value="pt_PT">🇵🇹 Portugal</option>
+</select>
+</div>
+<button class="btn-primary" onclick="generateAddress()" style="width:100%;margin-bottom:12px">🏠 GENERATE</button>
+<button class="btn-secondary" onclick="copyAllAddress()" style="width:100%">📋 COPY ALL</button>
+</div>
+<div id="addressResult"></div>
+</div>
+</div>
 
-        function getRandomName() {
-            const names = ['John Smith', 'Jane Doe', 'Michael Johnson', 'Sarah Williams', 'Robert Brown', 'Emily Davis', 'David Miller', 'Lisa Anderson'];
-            return names[Math.floor(Math.random() * names.length)];
-        }
+<script>
+// BIN Database
+const POPULAR_BINS=[
+{bin:"414720",brand:"Visa",type:"Credit",bank:"Chase",country:"US",flag:"🇺🇸"},
+{bin:"431940",brand:"Visa",type:"Debit",bank:"Chase",country:"US",flag:"🇺🇸"},
+{bin:"524364",brand:"Mastercard",type:"Credit",bank:"Citibank",country:"US",flag:"🇺🇸"},
+{bin:"515462",brand:"Mastercard",type:"Debit",bank:"SBI",country:"IN",flag:"🇮🇳"},
+{bin:"438857",brand:"Visa",type:"Debit",bank:"BCA",country:"ID",flag:"🇮🇩"},
+{bin:"421345",brand:"Visa",type:"Debit",bank:"BCA",country:"ID",flag:"🇮🇩"},
+{bin:"455633",brand:"Visa",type:"Credit",bank:"Mandiri",country:"ID",flag:"🇮🇩"},
+{bin:"539860",brand:"Mastercard",type:"Debit",bank:"Barclays",country:"GB",flag:"🇬🇧"},
+{bin:"475127",brand:"Visa",type:"Credit",bank:"Barclays",country:"GB",flag:"🇬🇧"},
+{bin:"459725",brand:"Visa",type:"Credit",bank:"HSBC",country:"GB",flag:"🇬🇧"},
+{bin:"450875",brand:"Visa",type:"Credit",bank:"TD Bank",country:"CA",flag:"🇨🇦"},
+{bin:"453278",brand:"Visa",type:"Credit",bank:"RBC",country:"CA",flag:"🇨🇦"},
+{bin:"940010",brand:"Visa",type:"Credit",bank:"Shinhan",country:"KR",flag:"🇰🇷"},
+{bin:"943100",brand:"Visa",type:"Credit",bank:"KB Kookmin",country:"KR",flag:"🇰🇷"},
+{bin:"356800",brand:"JCB",type:"Credit",bank:"SMBC",country:"JP",flag:"🇯🇵"},
+{bin:"435720",brand:"Visa",type:"Credit",bank:"MUFG",country:"JP",flag:"🇯🇵"},
+{bin:"516732",brand:"Mastercard",type:"Credit",bank:"Itau",country:"BR",flag:"🇧🇷"},
+{bin:"455187",brand:"Visa",type:"Credit",bank:"Bradesco",country:"BR",flag:"🇧🇷"},
+{bin:"492181",brand:"Visa",type:"Debit",bank:"CommBank",country:"AU",flag:"🇦🇺"},
+{bin:"453254",brand:"Visa",type:"Credit",bank:"ANZ",country:"AU",flag:"🇦🇺"},
+{bin:"492130",brand:"Visa",type:"Credit",bank:"Deutsche Bank",country:"DE",flag:"🇩🇪"},
+{bin:"516361",brand:"Mastercard",type:"Debit",bank:"Sparkasse",country:"DE",flag:"🇩🇪"},
+{bin:"497010",brand:"Visa",type:"Credit",bank:"BNP Paribas",country:"FR",flag:"🇫🇷"},
+{bin:"516308",brand:"Mastercard",type:"Credit",bank:"Credit Agricole",country:"FR",flag:"🇫🇷"},
+{bin:"415565",brand:"Visa",type:"Credit",bank:"Banamex",country:"MX",flag:"🇲🇽"},
+{bin:"546616",brand:"Mastercard",type:"Credit",bank:"Banorte",country:"MX",flag:"🇲🇽"},
+{bin:"489458",brand:"Visa",type:"Debit",bank:"Garanti",country:"TR",flag:"🇹🇷"},
+{bin:"521085",brand:"Mastercard",type:"Credit",bank:"Isbank",country:"TR",flag:"🇹🇷"},
+{bin:"427229",brand:"Visa",type:"Debit",bank:"Sberbank",country:"RU",flag:"🇷🇺"},
+{bin:"546918",brand:"Mastercard",type:"Credit",bank:"Tinkoff",country:"RU",flag:"🇷🇺"},
+{bin:"539923",brand:"Mastercard",type:"Debit",bank:"GTBank",country:"NG",flag:"🇳🇬"},
+{bin:"506099",brand:"Verve",type:"Debit",bank:"Access Bank",country:"NG",flag:"🇳🇬"},
+{bin:"453985",brand:"Visa",type:"Credit",bank:"BDO",country:"PH",flag:"🇵🇭"},
+{bin:"541673",brand:"Mastercard",type:"Credit",bank:"BPI",country:"PH",flag:"🇵🇭"},
+{bin:"418564",brand:"Visa",type:"Debit",bank:"Bangkok Bank",country:"TH",flag:"🇹🇭"},
+{bin:"552288",brand:"Mastercard",type:"Credit",bank:"Kasikorn",country:"TH",flag:"🇹🇭"},
+{bin:"455036",brand:"Visa",type:"Credit",bank:"Maybank",country:"MY",flag:"🇲🇾"},
+{bin:"535426",brand:"Mastercard",type:"Credit",bank:"CIMB",country:"MY",flag:"🇲🇾"},
+{bin:"428600",brand:"Visa",type:"Credit",bank:"DBS",country:"SG",flag:"🇸🇬"},
+{bin:"552038",brand:"Mastercard",type:"Credit",bank:"OCBC",country:"SG",flag:"🇸🇬"},
+{bin:"436768",brand:"Visa",type:"Debit",bank:"Vietcombank",country:"VN",flag:"🇻🇳"},
+{bin:"970436",brand:"Napas",type:"Debit",bank:"Techcombank",country:"VN",flag:"🇻🇳"},
+{bin:"468740",brand:"Visa",type:"Credit",bank:"Santander",country:"ES",flag:"🇪🇸"},
+{bin:"540500",brand:"Mastercard",type:"Credit",bank:"BBVA",country:"ES",flag:"🇪🇸"},
+{bin:"428813",brand:"Visa",type:"Credit",bank:"UniCredit",country:"IT",flag:"🇮🇹"},
+{bin:"541715",brand:"Mastercard",type:"Credit",bank:"Intesa",country:"IT",flag:"🇮🇹"},
+{bin:"431572",brand:"Visa",type:"Debit",bank:"ING",country:"NL",flag:"🇳🇱"},
+{bin:"516952",brand:"Mastercard",type:"Credit",bank:"ABN AMRO",country:"NL",flag:"🇳🇱"},
+{bin:"465858",brand:"Visa",type:"Credit",bank:"Nordea",country:"SE",flag:"🇸🇪"},
+{bin:"520082",brand:"Mastercard",type:"Debit",bank:"SEB",country:"SE",flag:"🇸🇪"},
+{bin:"415200",brand:"Visa",type:"Debit",bank:"DNB",country:"NO",flag:"🇳🇴"},
+{bin:"541333",brand:"Mastercard",type:"Credit",bank:"Nordea",country:"NO",flag:"🇳🇴"},
+{bin:"458071",brand:"Visa",type:"Credit",bank:"Danske Bank",country:"DK",flag:"🇩🇰"},
+{bin:"521076",brand:"Mastercard",type:"Debit",bank:"Jyske Bank",country:"DK",flag:"🇩🇰"},
+{bin:"415015",brand:"Visa",type:"Debit",bank:"OP Financial",country:"FI",flag:"🇫🇮"},
+{bin:"547186",brand:"Mastercard",type:"Credit",bank:"Nordea",country:"FI",flag:"🇫🇮"},
+{bin:"431940",brand:"Visa",type:"Credit",bank:"UBS",country:"CH",flag:"🇨🇭"},
+{bin:"540735",brand:"Mastercard",type:"Credit",bank:"Credit Suisse",country:"CH",flag:"🇨🇭"},
+{bin:"426101",brand:"Visa",type:"Debit",bank:"Erste Bank",country:"AT",flag:"🇦🇹"},
+{bin:"518791",brand:"Mastercard",type:"Credit",bank:"Raiffeisen",country:"AT",flag:"🇦🇹"},
+{bin:"476134",brand:"Visa",type:"Credit",bank:"KBC",country:"BE",flag:"🇧🇪"},
+{bin:"540536",brand:"Mastercard",type:"Debit",bank:"BNP Fortis",country:"BE",flag:"🇧🇪"},
+{bin:"427233",brand:"Visa",type:"Debit",bank:"PKO BP",country:"PL",flag:"🇵🇱"},
+{bin:"516986",brand:"Mastercard",type:"Credit",bank:"mBank",country:"PL",flag:"🇵🇱"},
+{bin:"446242",brand:"Visa",type:"Credit",bank:"Ceska Sporitelna",country:"CZ",flag:"🇨🇿"},
+{bin:"510986",brand:"Mastercard",type:"Debit",bank:"CSOB",country:"CZ",flag:"🇨🇿"},
+{bin:"421852",brand:"Visa",type:"Debit",bank:"OTP Bank",country:"HU",flag:"🇭🇺"},
+{bin:"533638",brand:"Mastercard",type:"Credit",bank:"K&H Bank",country:"HU",flag:"🇭🇺"},
+{bin:"404587",brand:"Visa",type:"Debit",bank:"BRD",country:"RO",flag:"🇷🇴"},
+{bin:"541952",brand:"Mastercard",type:"Credit",bank:"BCR",country:"RO",flag:"🇷🇴"},
+{bin:"469329",brand:"Visa",type:"Credit",bank:"PrivatBank",country:"UA",flag:"🇺🇦"},
+{bin:"516793",brand:"Mastercard",type:"Debit",bank:"Monobank",country:"UA",flag:"🇺🇦"},
+{bin:"400115",brand:"Visa",type:"Credit",bank:"Emirates NBD",country:"AE",flag:"🇦🇪"},
+{bin:"524940",brand:"Mastercard",type:"Credit",bank:"Mashreq",country:"AE",flag:"🇦🇪"},
+{bin:"468564",brand:"Visa",type:"Credit",bank:"Al Rajhi",country:"SA",flag:"🇸🇦"},
+{bin:"539012",brand:"Mastercard",type:"Debit",bank:"NCB",country:"SA",flag:"🇸🇦"},
+{bin:"428671",brand:"Visa",type:"Credit",bank:"QNB",country:"EG",flag:"🇪🇬"},
+{bin:"531344",brand:"Mastercard",type:"Debit",bank:"CIB",country:"EG",flag:"🇪🇬"},
+{bin:"410082",brand:"Visa",type:"Credit",bank:"FNB",country:"ZA",flag:"🇿🇦"},
+{bin:"522205",brand:"Mastercard",type:"Credit",bank:"Standard Bank",country:"ZA",flag:"🇿🇦"},
+{bin:"457393",brand:"Visa",type:"Credit",bank:"Banco Galicia",country:"AR",flag:"🇦🇷"},
+{bin:"546553",brand:"Mastercard",type:"Credit",bank:"Macro",country:"AR",flag:"🇦🇷"},
+{bin:"451766",brand:"Visa",type:"Credit",bank:"Banco de Chile",country:"CL",flag:"🇨🇱"},
+{bin:"525508",brand:"Mastercard",type:"Credit",bank:"BCI",country:"CL",flag:"🇨🇱"},
+{bin:"474641",brand:"Visa",type:"Credit",bank:"Bancolombia",country:"CO",flag:"🇨🇴"},
+{bin:"540721",brand:"Mastercard",type:"Debit",bank:"Davivienda",country:"CO",flag:"🇨🇴"},
+{bin:"462896",brand:"Visa",type:"Credit",bank:"BCP",country:"PE",flag:"🇵🇪"},
+{bin:"549752",brand:"Mastercard",type:"Credit",bank:"Interbank",country:"PE",flag:"🇵🇪"},
+{bin:"431277",brand:"Visa",type:"Credit",bank:"Bank of China",country:"CN",flag:"🇨🇳"},
+{bin:"622848",brand:"UnionPay",type:"Debit",bank:"ICBC",country:"CN",flag:"🇨🇳"},
+{bin:"456351",brand:"Visa",type:"Credit",bank:"CTBC",country:"TW",flag:"🇹🇼"},
+{bin:"515038",brand:"Mastercard",type:"Credit",bank:"Cathay United",country:"TW",flag:"🇹🇼"},
+{bin:"461632",brand:"Visa",type:"Credit",bank:"Bank of NZ",country:"NZ",flag:"🇳🇿"},
+{bin:"530367",brand:"Mastercard",type:"Credit",bank:"ASB",country:"NZ",flag:"🇳🇿"},
+{bin:"450661",brand:"Visa",type:"Credit",bank:"National Bank",country:"PK",flag:"🇵🇰"},
+{bin:"524131",brand:"Mastercard",type:"Debit",bank:"HBL",country:"PK",flag:"🇵🇰"},
+{bin:"431610",brand:"Visa",type:"Credit",bank:"Dhaka Bank",country:"BD",flag:"🇧🇩"},
+{bin:"546221",brand:"Mastercard",type:"Credit",bank:"BRAC Bank",country:"BD",flag:"🇧🇩"},
+{bin:"418202",brand:"Visa",type:"Debit",bank:"Commercial Bank",country:"LK",flag:"🇱🇰"},
+{bin:"524619",brand:"Mastercard",type:"Credit",bank:"HNB",country:"LK",flag:"🇱🇰"}
+];
 
-        function navigate(page) {
-            const pageId = page === '/' ? 'landing' : page.replace(/^[#\/]+/, '');
-            const pageEl = document.getElementById(pageId);
-            if (!pageEl) return;
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            pageEl.classList.add('active');
-            const link = document.querySelector(`[data-page="${pageId}"]`);
-            if (link) link.classList.add('active');
-            const newHash = page === '/' ? '' : '#' + pageId;
-            if (window.location.hash !== newHash) window.location.hash = newHash;
-        }
+let cardsGenerated=0,luhnValid=0;
+window.currentAddresses=[];
 
-        function generateCards() {
-            const bin = document.getElementById('binInput').value || '515462';
-            const qty = Math.min(parseInt(document.getElementById('quantity').value) || 10, 100);
-            const network = document.getElementById('network').value;
+// Luhn
+function luhnCheck(n){let s=0,e=false;for(let i=n.length-1;i>=0;i--){let d=parseInt(n[i],10);if(e){d*=2;if(d>9)d-=9}s+=d;e=!e}return s%10===0}
+function generateLuhn(bin){const len=16;let num=bin;while(num.length<len-1)num+=Math.floor(Math.random()*10).toString();let sum=0,isEven=true;for(let i=num.length-1;i>=0;i--){let d=parseInt(num[i],10);if(isEven){d*=2;if(d>9)d-=9}sum+=d;isEven=!isEven}return num+((10-(sum%10))%10)}
 
-            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+// Navigate
+function navigate(page){
+const pageId=page==='/'?'landing':page.replace(/^[#\/]+/,'');
+const el=document.getElementById(pageId);
+if(!el)return;
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+el.classList.add('active');
+const link=document.querySelector(`[data-page="${pageId}"]`);
+if(link)link.classList.add('active');
+const newHash=page==='/'?'':'#'+pageId;
+if(window.location.hash!==newHash)window.location.hash=newHash;
+window.scrollTo(0,0);
+}
 
-            let cards = [];
-            for (let i = 0; i < qty; i++) {
-                const cardNum = generateLuhn(bin);
-                const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
-                const year = String(Math.floor(Math.random() * 6) + 27).padStart(2, '0');
-                const cvv = String(Math.floor(Math.random() * 900) + 100);
-                const name = getRandomName();
-                cards.push({ number: cardNum, expiry: `${month}/${year}`, cvv, name });
-                if (luhnCheck(cardNum)) luhnValid++;
-            }
+// Generate Cards
+function generateCards(){
+const bin=document.getElementById('binInput').value||'515462';
+const qty=Math.min(parseInt(document.getElementById('quantity').value)||10,100);
+if(!bin||bin.length<6){alert('Enter valid BIN (6+ digits)');return}
+let cards=[];
+const names=['John Smith','Jane Doe','Michael Johnson','Sarah Williams','Robert Brown','Emily Davis','David Miller','Lisa Anderson','James Wilson','Maria Garcia'];
+for(let i=0;i<qty;i++){
+const cardNum=generateLuhn(bin);
+const month=String(Math.floor(Math.random()*12)+1).padStart(2,'0');
+const year=String(Math.floor(Math.random()*6)+27).padStart(2,'0');
+const cvv=String(Math.floor(Math.random()*900)+100);
+const name=names[Math.floor(Math.random()*names.length)];
+cards.push({number:cardNum,expiry:`${month}/${year}`,cvv,name});
+if(luhnCheck(cardNum))luhnValid++;
+}
+cardsGenerated+=qty;
+document.getElementById('s1').textContent=cardsGenerated.toLocaleString();
+document.getElementById('s3').textContent=luhnValid.toLocaleString();
+let output='<div class="glass-panel"><h3 style="margin-bottom:16px;font-family:Space Grotesk,sans-serif;">Generated '+qty+' Cards</h3><div class="output-cards">';
+cards.forEach(c=>{
+const s=`${c.number} | ${c.expiry} | ${c.cvv} | ${c.name}`;
+output+=`<div class="card-item"><span>${s}</span><button class="btn-small" onclick="navigator.clipboard.writeText('${s}')">📋</button></div>`;
+});
+output+='</div></div>';
+document.getElementById('output').innerHTML=output;
+}
 
-            cardsGenerated += qty;
-            document.getElementById('stat-cards').textContent = cardsGenerated;
-            document.getElementById('stat-valid').textContent = luhnValid;
+// BIN Lookup
+function lookupBin(){
+const bin=document.getElementById('binLookup').value;
+if(!bin||bin.length<6){alert('Enter valid BIN');return}
+document.getElementById('binResult').innerHTML='<div class="glass-panel"><p>Loading...</p></div>';
+fetch(`https://lookup.binlist.net/${bin}`)
+.then(r=>r.json())
+.then(d=>{
+document.getElementById('binResult').innerHTML=`<div class="glass-panel"><h3 style="margin-bottom:16px;font-family:Space Grotesk,sans-serif;">BIN: ${bin}</h3><p><strong>Bank:</strong> ${d.bank?.name||'Unknown'}</p><p><strong>Country:</strong> ${d.country?.name||'Unknown'} (${d.country?.alpha2||'N/A'})</p><p><strong>Type:</strong> ${d.type||'Unknown'}</p><p><strong>Brand:</strong> ${d.brand||'Unknown'}</p><p><strong>Currency:</strong> ${d.country?.currency||'Unknown'}</p><button class="btn-primary" onclick="document.getElementById('binInput').value='${bin}';navigate('/generate')" style="margin-top:16px">⚡ Generate from this BIN</button></div>`;
+})
+.catch(()=>{document.getElementById('binResult').innerHTML='<div class="glass-panel"><p style="color:var(--accent)">BIN not found or API error</p></div>'});
+}
 
-            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated ' + qty + ' Cards</h3>';
-            output += '<div class="output-cards">';
-            cards.forEach(card => {
-                const cardStr = `${card.number} | ${card.expiry} | ${card.cvv} | ${card.name}`;
-                output += `<div class="card-item"><span>${cardStr}</span><button class="btn-small" onclick="navigator.clipboard.writeText('${cardStr}')">📋 Copy</button></div>`;
-            });
-            output += '</div></div>';
-            document.getElementById('output').innerHTML = output;
-        }
+// Filter BINs
+function filterBins(){
+const c=document.getElementById('binCountryFilter').value;
+const f=c==='all'?POPULAR_BINS:POPULAR_BINS.filter(b=>b.country===c);
+let o='';
+f.forEach(b=>{
+o+=`<div class="card-item" style="cursor:pointer" onclick="document.getElementById('binInput').value='${b.bin}';navigate('/generate')"><span>${b.flag} <strong>${b.bin}</strong> | ${b.brand} | ${b.type} | ${b.bank}</span><button class="btn-small" onclick="event.stopPropagation();navigator.clipboard.writeText('${b.bin}')">📋</button></div>`;
+});
+document.getElementById('binTable').innerHTML=o;
+}
 
-        function lookupBin() {
-            const bin = document.getElementById('binLookup').value;
-            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+// Address Generator
+function generateAddress(){
+const locale=document.getElementById('countrySelect').value;
+const qty=Math.min(parseInt(document.getElementById('addressQty').value)||5,50);
+document.getElementById('addressResult').innerHTML='<div class="glass-panel"><p>Loading...</p></div>';
+Promise.all([
+fetch(`https://fakerapi.it/api/v2/addresses?_quantity=${qty}&_locale=${locale}`).then(r=>r.json()),
+fetch(`https://fakerapi.it/api/v2/persons?_quantity=${qty}&_locale=${locale}`).then(r=>r.json())
+]).then(([a,p])=>{
+window.currentAddresses=[];
+let o='<div class="glass-panel"><h3 style="margin-bottom:16px;font-family:Space Grotesk,sans-serif;">Generated '+qty+' Identities</h3><div class="output-cards">';
+for(let i=0;i<qty;i++){
+const addr=a.data[i],person=p.data[i];
+const entry={name:`${person.firstname} ${person.lastname}`,address:`${addr.street} ${addr.buildingNumber}`,city:addr.city,country:addr.country,zip:addr.zipcode,phone:person.phone,email:person.email};
+window.currentAddresses.push(entry);
+o+=`<div class="result-card"><p><strong>Name:</strong> ${entry.name}</p><p><strong>Address:</strong> ${entry.address}</p><p><strong>City:</strong> ${entry.city}</p><p><strong>Country:</strong> ${entry.country}</p><p><strong>ZIP:</strong> ${entry.zip}</p><p><strong>Phone:</strong> ${entry.phone}</p><p><strong>Email:</strong> ${entry.email}</p><button class="btn-small" onclick="copyAddr(${i})" style="margin-top:8px">📋 Copy</button></div>`;
+}
+o+='</div></div>';
+document.getElementById('addressResult').innerHTML=o;
+}).catch(()=>{document.getElementById('addressResult').innerHTML='<div class="glass-panel"><p style="color:var(--accent)">API error. Try again.</p></div>'});
+}
+function copyAddr(i){const e=window.currentAddresses[i];navigator.clipboard.writeText(`Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}`).then(()=>alert('Copied!'))}
+function copyAllAddress(){if(!window.currentAddresses.length){alert('Generate first');return}let t='';window.currentAddresses.forEach(e=>{t+=`Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}\n\n`});navigator.clipboard.writeText(t).then(()=>alert('All copied!'))}
 
-            fetch(`https://lookup.binlist.net/${bin}`)
-                .then(r => r.json())
-                .then(data => {
-                    const result = `<div class="glass-panel">
-                        <h3 style="margin-bottom: 16px;">BIN: ${bin}</h3>
-                        <p><strong>Bank:</strong> ${data.bank?.name || 'Unknown'}</p>
-                        <p><strong>Country:</strong> ${data.country?.name || 'Unknown'} (${data.country?.alpha2 || 'N/A'})</p>
-                        <p><strong>Type:</strong> ${data.type || 'Unknown'}</p>
-                        <p><strong>Brand:</strong> ${data.brand || 'Unknown'}</p>
-                        <p><strong>Currency:</strong> ${data.country?.currency || 'Unknown'}</p>
-                    </div>`;
-                    document.getElementById('binResult').innerHTML = result;
-                })
-                .catch(e => {
-                    document.getElementById('binResult').innerHTML = '<div class="glass-panel"><p style="color: #ef4444;">BIN not found or API error</p></div>';
-                });
-        }
+// Cursor glow
+document.addEventListener('mousemove',e=>{const g=document.getElementById('cursorGlow');g.style.transform=`translate(${e.clientX-150}px,${e.clientY-150}px)`});
 
-        function generateAddress() {
-            const locale = document.getElementById('countrySelect').value;
-            const qty = Math.min(parseInt(document.getElementById('addressQty')?.value || 5), 50);
-            document.getElementById('addressResult').innerHTML = '<div class="glass-panel"><p>Loading...</p></div>';
-            
-            Promise.all([
-                fetch(`https://fakerapi.it/api/v2/addresses?_quantity=${qty}&_locale=${locale}`).then(r => r.json()),
-                fetch(`https://fakerapi.it/api/v2/persons?_quantity=${qty}&_locale=${locale}`).then(r => r.json())
-            ])
-            .then(([addrData, personData]) => {
-                window.currentAddresses = [];
-                let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated ' + qty + ' Identities</h3><div class="output-cards">';
-                for (let i = 0; i < qty; i++) {
-                    const addr = addrData.data[i];
-                    const person = personData.data[i];
-                    const entry = {
-                        name: `${person.firstname} ${person.lastname}`,
-                        address: `${addr.street} ${addr.buildingNumber}`,
-                        city: addr.city,
-                        country: addr.country,
-                        zip: addr.zipcode,
-                        phone: person.phone,
-                        email: person.email
-                    };
-                    window.currentAddresses.push(entry);
-                    output += `<div class="result-card">
-                        <p><strong>Name:</strong> ${entry.name}</p>
-                        <p><strong>Address:</strong> ${entry.address}</p>
-                        <p><strong>City:</strong> ${entry.city}</p>
-                        <p><strong>Country:</strong> ${entry.country}</p>
-                        <p><strong>ZIP:</strong> ${entry.zip}</p>
-                        <p><strong>Phone:</strong> ${entry.phone}</p>
-                        <p><strong>Email:</strong> ${entry.email}</p>
-                        <button class="btn-small" onclick="copyAddr(${i})" style="margin-top: 8px;">📋 Copy</button>
-                    </div>`;
-                }
-                output += '</div></div>';
-                document.getElementById('addressResult').innerHTML = output;
-            })
-            .catch(e => {
-                document.getElementById('addressResult').innerHTML = '<div class="glass-panel"><p style="color: #ef4444;">API error. Try again.</p></div>';
-            });
-        }
+// Particles
+(function(){const c=document.getElementById('particles');if(!c)return;for(let i=0;i<20;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*6)+'s';c.appendChild(p)}})();
 
-        function copyAddr(i) {
-            const e = window.currentAddresses[i];
-            const text = `Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}`;
-            navigator.clipboard.writeText(text).then(() => alert('Copied!'));
-        }
+// Fade up observer
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
 
-        function copyAllAddress() {
-            if (!window.currentAddresses || !window.currentAddresses.length) { alert('Generate addresses first'); return; }
-            let text = '';
-            window.currentAddresses.forEach(e => {
-                text += `Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}\n\n`;
-            });
-            navigator.clipboard.writeText(text).then(() => alert('All copied!'));
-        }
+// Counter animation
+function animateCount(el,target,suffix=''){let current=0;const step=target/60;const timer=setInterval(()=>{current+=step;if(current>=target){current=target;clearInterval(timer)}el.textContent=Math.floor(current).toLocaleString()+suffix},30)}
+setTimeout(()=>{animateCount(document.getElementById('s1'),12400000,'+');animateCount(document.getElementById('s2'),50,'+');animateCount(document.getElementById('s3'),99,'%');animateCount(document.getElementById('s4'),2400,'+')},500);
 
-        const POPULAR_BINS = [
-            { bin: "414720", brand: "Visa", type: "Credit", bank: "Chase", country: "US", flag: "🇺🇸" },
-            { bin: "431940", brand: "Visa", type: "Debit", bank: "Chase", country: "US", flag: "🇺🇸" },
-            { bin: "515462", brand: "Mastercard", type: "Debit", bank: "SBI", country: "IN", flag: "🇮🇳" },
-            { bin: "524364", brand: "Mastercard", type: "Credit", bank: "Citibank", country: "US", flag: "🇺🇸" },
-            { bin: "438857", brand: "Visa", type: "Debit", bank: "BCA", country: "ID", flag: "🇮🇩" },
-            { bin: "421345", brand: "Visa", type: "Debit", bank: "BCA", country: "ID", flag: "🇮🇩" },
-            { bin: "455633", brand: "Visa", type: "Credit", bank: "Mandiri", country: "ID", flag: "🇮🇩" },
-            { bin: "539860", brand: "Mastercard", type: "Debit", bank: "Barclays", country: "GB", flag: "🇬🇧" },
-            { bin: "475127", brand: "Visa", type: "Credit", bank: "Barclays", country: "GB", flag: "🇬🇧" },
-            { bin: "459725", brand: "Visa", type: "Credit", bank: "HSBC", country: "GB", flag: "🇬🇧" },
-            { bin: "450875", brand: "Visa", type: "Credit", bank: "TD Bank", country: "CA", flag: "🇨🇦" },
-            { bin: "453278", brand: "Visa", type: "Credit", bank: "RBC", country: "CA", flag: "🇨🇦" },
-            { bin: "940010", brand: "Visa", type: "Credit", bank: "Shinhan", country: "KR", flag: "🇰🇷" },
-            { bin: "943100", brand: "Visa", type: "Credit", bank: "KB Kookmin", country: "KR", flag: "🇰🇷" },
-            { bin: "356800", brand: "JCB", type: "Credit", bank: "SMBC", country: "JP", flag: "🇯🇵" },
-            { bin: "435720", brand: "Visa", type: "Credit", bank: "MUFG", country: "JP", flag: "🇯🇵" },
-            { bin: "516732", brand: "Mastercard", type: "Credit", bank: "Itau", country: "BR", flag: "🇧🇷" },
-            { bin: "455187", brand: "Visa", type: "Credit", bank: "Bradesco", country: "BR", flag: "🇧🇷" },
-            { bin: "492181", brand: "Visa", type: "Debit", bank: "CommBank", country: "AU", flag: "🇦🇺" },
-            { bin: "453254", brand: "Visa", type: "Credit", bank: "ANZ", country: "AU", flag: "🇦🇺" },
-            { bin: "492130", brand: "Visa", type: "Credit", bank: "Deutsche Bank", country: "DE", flag: "🇩🇪" },
-            { bin: "516361", brand: "Mastercard", type: "Debit", bank: "Sparkasse", country: "DE", flag: "🇩🇪" },
-            { bin: "497010", brand: "Visa", type: "Credit", bank: "BNP Paribas", country: "FR", flag: "🇫🇷" },
-            { bin: "516308", brand: "Mastercard", type: "Credit", bank: "Credit Agricole", country: "FR", flag: "🇫🇷" },
-            { bin: "415565", brand: "Visa", type: "Credit", bank: "Banamex", country: "MX", flag: "🇲🇽" },
-            { bin: "546616", brand: "Mastercard", type: "Credit", bank: "Banorte", country: "MX", flag: "🇲🇽" },
-            { bin: "489458", brand: "Visa", type: "Debit", bank: "Garanti", country: "TR", flag: "🇹🇷" },
-            { bin: "521085", brand: "Mastercard", type: "Credit", bank: "Isbank", country: "TR", flag: "🇹🇷" },
-            { bin: "427229", brand: "Visa", type: "Debit", bank: "Sberbank", country: "RU", flag: "🇷🇺" },
-            { bin: "546918", brand: "Mastercard", type: "Credit", bank: "Tinkoff", country: "RU", flag: "🇷🇺" },
-            { bin: "539923", brand: "Mastercard", type: "Debit", bank: "GTBank", country: "NG", flag: "🇳🇬" },
-            { bin: "506099", brand: "Verve", type: "Debit", bank: "Access Bank", country: "NG", flag: "🇳🇬" },
-            { bin: "453985", brand: "Visa", type: "Credit", bank: "BDO", country: "PH", flag: "🇵🇭" },
-            { bin: "541673", brand: "Mastercard", type: "Credit", bank: "BPI", country: "PH", flag: "🇵🇭" },
-            { bin: "418564", brand: "Visa", type: "Debit", bank: "Bangkok Bank", country: "TH", flag: "🇹🇭" },
-            { bin: "552288", brand: "Mastercard", type: "Credit", bank: "Kasikorn", country: "TH", flag: "🇹🇭" },
-            { bin: "455036", brand: "Visa", type: "Credit", bank: "Maybank", country: "MY", flag: "🇲🇾" },
-            { bin: "535426", brand: "Mastercard", type: "Credit", bank: "CIMB", country: "MY", flag: "🇲🇾" },
-            { bin: "428600", brand: "Visa", type: "Credit", bank: "DBS", country: "SG", flag: "🇸🇬" },
-            { bin: "552038", brand: "Mastercard", type: "Credit", bank: "OCBC", country: "SG", flag: "🇸🇬" },
-            { bin: "436768", brand: "Visa", type: "Debit", bank: "Vietcombank", country: "VN", flag: "🇻🇳" },
-            { bin: "970436", brand: "Napas", type: "Debit", bank: "Techcombank", country: "VN", flag: "🇻🇳" },
-            { bin: "468740", brand: "Visa", type: "Credit", bank: "Banco Santander", country: "ES", flag: "🇪🇸" },
-            { bin: "540500", brand: "Mastercard", type: "Credit", bank: "BBVA", country: "ES", flag: "🇪🇸" },
-            { bin: "428813", brand: "Visa", type: "Credit", bank: "UniCredit", country: "IT", flag: "🇮🇹" },
-            { bin: "541715", brand: "Mastercard", type: "Credit", bank: "Intesa Sanpaolo", country: "IT", flag: "🇮🇹" },
-            { bin: "431572", brand: "Visa", type: "Debit", bank: "ING", country: "NL", flag: "🇳🇱" },
-            { bin: "516952", brand: "Mastercard", type: "Credit", bank: "ABN AMRO", country: "NL", flag: "🇳🇱" },
-            { bin: "465858", brand: "Visa", type: "Credit", bank: "Nordea", country: "SE", flag: "🇸🇪" },
-            { bin: "520082", brand: "Mastercard", type: "Debit", bank: "SEB", country: "SE", flag: "🇸🇪" },
-            { bin: "415200", brand: "Visa", type: "Debit", bank: "DNB", country: "NO", flag: "🇳🇴" },
-            { bin: "541333", brand: "Mastercard", type: "Credit", bank: "Nordea", country: "NO", flag: "🇳🇴" },
-            { bin: "458071", brand: "Visa", type: "Credit", bank: "Danske Bank", country: "DK", flag: "🇩🇰" },
-            { bin: "521076", brand: "Mastercard", type: "Debit", bank: "Jyske Bank", country: "DK", flag: "🇩🇰" },
-            { bin: "415015", brand: "Visa", type: "Debit", bank: "OP Financial", country: "FI", flag: "🇫🇮" },
-            { bin: "547186", brand: "Mastercard", type: "Credit", bank: "Nordea", country: "FI", flag: "🇫🇮" },
-            { bin: "431940", brand: "Visa", type: "Credit", bank: "UBS", country: "CH", flag: "🇨🇭" },
-            { bin: "540735", brand: "Mastercard", type: "Credit", bank: "Credit Suisse", country: "CH", flag: "🇨🇭" },
-            { bin: "426101", brand: "Visa", type: "Debit", bank: "Erste Bank", country: "AT", flag: "🇦🇹" },
-            { bin: "518791", brand: "Mastercard", type: "Credit", bank: "Raiffeisen", country: "AT", flag: "🇦🇹" },
-            { bin: "476134", brand: "Visa", type: "Credit", bank: "KBC", country: "BE", flag: "🇧🇪" },
-            { bin: "540536", brand: "Mastercard", type: "Debit", bank: "BNP Paribas Fortis", country: "BE", flag: "🇧🇪" },
-            { bin: "427233", brand: "Visa", type: "Debit", bank: "PKO BP", country: "PL", flag: "🇵🇱" },
-            { bin: "516986", brand: "Mastercard", type: "Credit", bank: "mBank", country: "PL", flag: "🇵🇱" },
-            { bin: "446242", brand: "Visa", type: "Credit", bank: "Ceska Sporitelna", country: "CZ", flag: "🇨🇿" },
-            { bin: "510986", brand: "Mastercard", type: "Debit", bank: "CSOB", country: "CZ", flag: "🇨🇿" },
-            { bin: "421852", brand: "Visa", type: "Debit", bank: "OTP Bank", country: "HU", flag: "🇭🇺" },
-            { bin: "533638", brand: "Mastercard", type: "Credit", bank: "K&H Bank", country: "HU", flag: "🇭🇺" },
-            { bin: "404587", brand: "Visa", type: "Debit", bank: "BRD", country: "RO", flag: "🇷🇴" },
-            { bin: "541952", brand: "Mastercard", type: "Credit", bank: "BCR", country: "RO", flag: "🇷🇴" },
-            { bin: "469329", brand: "Visa", type: "Credit", bank: "PrivatBank", country: "UA", flag: "🇺🇦" },
-            { bin: "516793", brand: "Mastercard", type: "Debit", bank: "Monobank", country: "UA", flag: "🇺🇦" },
-            { bin: "400115", brand: "Visa", type: "Credit", bank: "Emirates NBD", country: "AE", flag: "🇦🇪" },
-            { bin: "524940", brand: "Mastercard", type: "Credit", bank: "Mashreq", country: "AE", flag: "🇦🇪" },
-            { bin: "468564", brand: "Visa", type: "Credit", bank: "Al Rajhi", country: "SA", flag: "🇸🇦" },
-            { bin: "539012", brand: "Mastercard", type: "Debit", bank: "NCB", country: "SA", flag: "🇸🇦" },
-            { bin: "428671", brand: "Visa", type: "Credit", bank: "QNB", country: "EG", flag: "🇪🇬" },
-            { bin: "531344", brand: "Mastercard", type: "Debit", bank: "CIB", country: "EG", flag: "🇪🇬" },
-            { bin: "410082", brand: "Visa", type: "Credit", bank: "FNB", country: "ZA", flag: "🇿🇦" },
-            { bin: "522205", brand: "Mastercard", type: "Credit", bank: "Standard Bank", country: "ZA", flag: "🇿🇦" },
-            { bin: "457393", brand: "Visa", type: "Credit", bank: "Banco Galicia", country: "AR", flag: "🇦🇷" },
-            { bin: "546553", brand: "Mastercard", type: "Credit", bank: "Macro", country: "AR", flag: "🇦🇷" },
-            { bin: "451766", brand: "Visa", type: "Credit", bank: "Banco de Chile", country: "CL", flag: "🇨🇱" },
-            { bin: "525508", brand: "Mastercard", type: "Credit", bank: "BCI", country: "CL", flag: "🇨🇱" },
-            { bin: "474641", brand: "Visa", type: "Credit", bank: "Bancolombia", country: "CO", flag: "🇨🇴" },
-            { bin: "540721", brand: "Mastercard", type: "Debit", bank: "Davivienda", country: "CO", flag: "🇨🇴" },
-            { bin: "462896", brand: "Visa", type: "Credit", bank: "BCP", country: "PE", flag: "🇵🇪" },
-            { bin: "549752", brand: "Mastercard", type: "Credit", bank: "Interbank", country: "PE", flag: "🇵🇪" },
-            { bin: "431277", brand: "Visa", type: "Credit", bank: "Bank of China", country: "CN", flag: "🇨🇳" },
-            { bin: "622848", brand: "UnionPay", type: "Debit", bank: "ICBC", country: "CN", flag: "🇨🇳" },
-            { bin: "456351", brand: "Visa", type: "Credit", bank: "CTBC", country: "TW", flag: "🇹🇼" },
-            { bin: "515038", brand: "Mastercard", type: "Credit", bank: "Cathay United", country: "TW", flag: "🇹🇼" },
-            { bin: "461632", brand: "Visa", type: "Credit", bank: "Bank of NZ", country: "NZ", flag: "🇳🇿" },
-            { bin: "530367", brand: "Mastercard", type: "Credit", bank: "ASB", country: "NZ", flag: "🇳🇿" },
-            { bin: "450661", brand: "Visa", type: "Credit", bank: "National Bank", country: "PK", flag: "🇵🇰" },
-            { bin: "524131", brand: "Mastercard", type: "Debit", bank: "HBL", country: "PK", flag: "🇵🇰" },
-            { bin: "431610", brand: "Visa", type: "Credit", bank: "Dhaka Bank", country: "BD", flag: "🇧🇩" },
-            { bin: "546221", brand: "Mastercard", type: "Credit", bank: "BRAC Bank", country: "BD", flag: "🇧🇩" },
-            { bin: "418202", brand: "Visa", type: "Debit", bank: "Commercial Bank", country: "LK", flag: "🇱🇰" },
-            { bin: "524619", brand: "Mastercard", type: "Credit", bank: "HNB", country: "LK", flag: "🇱🇰" }
-        ];
+// Hash routing
+window.addEventListener('hashchange',()=>{const h=window.location.hash.replace('#','')||'/';navigate(h)});
+if(window.location.hash)navigate(window.location.hash.replace('#',''));
 
-        function filterBins() {
-            const country = document.getElementById('binCountryFilter').value;
-            const filtered = country === 'all' ? POPULAR_BINS : POPULAR_BINS.filter(b => b.country === country);
-            let output = '';
-            filtered.forEach(b => {
-                output += `<div class="card-item" style="cursor: pointer;" onclick="useBin('${b.bin}')">
-                    <span>${b.flag} <strong>${b.bin}</strong> | ${b.brand} | ${b.type} | ${b.bank}</span>
-                    <button class="btn-small" onclick="event.stopPropagation(); navigator.clipboard.writeText('${b.bin}')">📋</button>
-                </div>`;
-            });
-            document.getElementById('binTable').innerHTML = output;
-        }
-
-        function useBin(bin) {
-            document.getElementById('binInput').value = bin;
-            navigate('/generate');
-        }
-
-        // Init BIN table on page load
-        filterBins();
-
-        window.addEventListener('hashchange', () => {
-            const hash = window.location.hash.replace('#', '') || '/';
-            navigate(hash);
-        });
-        if (window.location.hash) navigate(window.location.hash.replace('#', ''));
-    </script>
+// Init BIN table
+filterBins();
+</script>
 </body>
 </html>
