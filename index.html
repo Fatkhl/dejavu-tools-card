@@ -111,13 +111,16 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 .cursor-trail{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--accent);pointer-events:none;z-index:9998;opacity:0;transition:opacity 0.3s}
 
 /* [4] LOADING SCREEN */
-.loading-screen{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity 0.8s,visibility 0.8s}
-.loading-screen.hidden{opacity:0;visibility:hidden}
-.loading-logo{font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:700;color:var(--accent);animation:glow 1.5s ease-in-out infinite;margin-bottom:24px}
-.loading-bar{width:200px;height:3px;background:rgba(255,45,85,0.2);border-radius:4px;overflow:hidden}
-.loading-bar-fill{height:100%;background:var(--accent);border-radius:4px;animation:loadFill 2s ease-in-out forwards}
-@keyframes loadFill{0%{width:0}100%{width:100%}}
-.loading-pct{margin-top:12px;font-size:14px;color:var(--muted)}
+.loading-screen{position:fixed;inset:0;z-index:10000;background:#0b0b0f;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity 1s ease,visibility 1s ease,filter 0.8s ease}
+.loading-screen.hidden{opacity:0;visibility:hidden;filter:blur(10px)}
+.loading-screen .load-orb{position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,45,85,0.08);filter:blur(60px);animation:orbFloat 6s ease-in-out infinite}
+.loading-screen .load-scanline{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,45,85,0.02) 2px,rgba(255,45,85,0.02) 4px);pointer-events:none}
+.load-logo{font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:700;color:var(--accent);margin-bottom:32px;animation:loadGlow 2s ease-in-out infinite;text-shadow:0 0 20px rgba(255,45,85,0.5)}
+@keyframes loadGlow{0%,100%{text-shadow:0 0 20px rgba(255,45,85,0.5);transform:scale(1)}50%{text-shadow:0 0 40px rgba(255,45,85,0.8);transform:scale(1.02)}}
+.load-bar-wrap{width:240px;height:4px;background:rgba(255,45,85,0.1);border-radius:4px;overflow:hidden;position:relative}
+.load-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 0.3s ease;box-shadow:0 0 10px rgba(255,45,85,0.5)}
+.load-pct{margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--accent);letter-spacing:2px}
+.load-status{margin-top:12px;font-size:12px;color:var(--muted);min-height:16px;transition:opacity 0.3s}
 
 /* [5] ADVANCED BUTTON EFFECTS */
 .btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,0.1),transparent);transform:translateX(-100%);transition:transform 0.6s}
@@ -181,12 +184,35 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 <body>
 
 <div class="loading-screen" id="loadingScreen">
-<div class="loading-logo">⚡ DejaVu</div>
-<div class="loading-bar"><div class="loading-bar-fill"></div></div>
-<div class="loading-pct" id="loadPct">0%</div>
+<div class="load-orb" style="top:20%;left:20%"></div>
+<div class="load-orb" style="bottom:20%;right:20%;animation-delay:3s"></div>
+<div class="load-scanline"></div>
+<div class="load-logo">⚡ DejaVu</div>
+<div class="load-bar-wrap"><div class="load-bar-fill" id="loadBarFill"></div></div>
+<div class="load-pct" id="loadPct">0%</div>
+<div class="load-status" id="loadStatus">Initializing...</div>
 </div>
 <script>
-(function(){let pct=0;const el=document.getElementById('loadPct');const iv=setInterval(()=>{pct+=Math.floor(Math.random()*20)+10;if(pct>=100){pct=100;clearInterval(iv);el.textContent='100%';setTimeout(()=>{document.getElementById('loadingScreen').classList.add('hidden')},400)}else{el.textContent=pct+'%'}},200)})();
+(function(){
+const bar=document.getElementById('loadBarFill');
+const pctEl=document.getElementById('loadPct');
+const statusEl=document.getElementById('loadStatus');
+const statuses=['Initializing...','Loading systems...','Connecting modules...','Starting generator...','Validating encryption...','Ready.'];
+let pct=0;
+let statusIdx=0;
+function tick(){
+const increment=Math.random()*8+3;
+pct=Math.min(pct+increment,100);
+const rounded=Math.floor(pct);
+bar.style.width=rounded+'%';
+pctEl.textContent=rounded+'%';
+const newIdx=Math.min(Math.floor(pct/20),statuses.length-1);
+if(newIdx!==statusIdx){statusIdx=newIdx;statusEl.style.opacity='0';setTimeout(()=>{statusEl.textContent=statuses[statusIdx];statusEl.style.opacity='1'},200)}
+if(pct>=100){pctEl.textContent='100%';bar.style.width='100%';statusEl.textContent='Ready.';setTimeout(()=>{document.getElementById('loadingScreen').classList.add('hidden')},800)}
+else{setTimeout(tick,200+Math.random()*300)}
+}
+setTimeout(tick,500);
+})();
 </script>
 <div class="scroll-progress" id="scrollProgress" style="width:0%"></div>
 <div class="cyber-grid"></div>
@@ -498,6 +524,3 @@ const names=['John Smith','Jane Doe','Michael Johnson','Sarah Williams','Robert 
 for(let i=0;i<qty;i++){
 const cardNum=generateLuhn(bin);
 const month=String(Math.floor(Math.random()*12)+1).padStart(2,'0');
-const year=String(Math.floor(Math.random()*6)+27).padStart(2,'0');
-const cvv=String(Math.floor(Math.random()*900)+100);
-const name=names[Math.floor(Math.random()*names.length)];
