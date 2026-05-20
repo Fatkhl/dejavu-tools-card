@@ -1,398 +1,398 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DejaVu Tools Card</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg-deep: #050508;
-            --bg-surface: #0c0c14;
-            --accent-1: #7c3aed;
-            --accent-2: #06b6d4;
-            --text: #f0f0f5;
-            --text-muted: #6b7280;
-            --border: rgba(124, 58, 237, 0.15);
-        }
-        body {
-            background: var(--bg-deep);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.05) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
-            z-index: -1;
-        }
-        .navbar {
-            background: rgba(12, 12, 20, 0.7);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 32px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar-brand {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            cursor: pointer;
-        }
-        .navbar-links { display: flex; gap: 32px; align-items: center; }
-        .navbar-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.3s;
-            font-size: 14px;
-        }
-        .navbar-links a:hover, .navbar-links a.active { color: var(--accent-1); }
-        .glass-panel {
-            background: rgba(12, 12, 20, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 32px;
-            transition: all 0.3s;
-        }
-        .glass-panel:hover {
-            border-color: rgba(124, 58, 237, 0.4);
-            box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
-        }
-        .btn-glow {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        .btn-glow:hover { transform: translateY(-2px); }
-        .btn-small {
-            background: var(--accent-1);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            color: white;
-            cursor: pointer;
-            font-size: 12px;
-            transition: opacity 0.3s;
-        }
-        .btn-small:hover { opacity: 0.8; }
-        .page { display: none; min-height: calc(100vh - 80px); padding: 64px 32px; }
-        .page.active { display: block; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .hero { text-align: center; margin-bottom: 80px; }
-        .hero h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 64px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 80px; }
-        .stat-card { text-align: center; }
-        .stat-number {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 48px;
-            font-weight: 700;
-            color: var(--accent-1);
-        }
-        .stat-label { color: var(--text-muted); font-size: 14px; }
-        .form-group { margin-bottom: 24px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(12, 12, 20, 0.7);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-family: 'JetBrains Mono', monospace;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--accent-1);
-        }
-        .output-cards { display: grid; gap: 16px; margin-top: 32px; }
-        .card-item {
-            background: rgba(12, 12, 20, 0.7);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            word-break: break-all;
-        }
-        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px; }
-        .result-card {
-            background: rgba(12, 12, 20, 0.7);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-        }
-        .result-card p { margin-bottom: 8px; font-size: 14px; }
-        .result-card strong { color: var(--accent-1); }
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 40px; }
-            .stats { grid-template-columns: 1fr; }
-            .card-item { flex-direction: column; align-items: flex-start; }
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-brand" onclick="navigate('/')">⚡ DejaVu</div>
-        <div class="navbar-links">
-            <a onclick="navigate('/')" class="nav-link active" data-page="landing">Home</a>
-            <a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
-            <a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
-            <a onclick="navigate('/address')" class="nav-link" data-page="address">Address</a>
-        </div>
-    </nav>
-
-    <div id="landing" class="page active">
-        <div class="container">
-            <div class="hero">
-                <h1>⚡ DejaVu Tools Card</h1>
-                <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 32px;">Generate. Validate. Dominate.</p>
-            </div>
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-cards">0</div>
-                    <div class="stat-label">Cards Generated</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-countries">10</div>
-                    <div class="stat-label">Countries</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-valid">0</div>
-                    <div class="stat-label">Luhn Valid</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="generate" class="page">
-        <div class="container">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">💳 Credit Card Generator</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-                <div class="form-group">
-                    <label>BIN Prefix (optional, 6-8 digits)</label>
-                    <input type="text" id="binInput" placeholder="515462" value="515462">
-                </div>
-                <div class="form-group">
-                    <label>Quantity (1-100)</label>
-                    <input type="number" id="quantity" min="1" max="100" value="10">
-                </div>
-                <div class="form-group">
-                    <label>Network</label>
-                    <select id="network">
-                        <option value="visa">Visa</option>
-                        <option value="mastercard" selected>Mastercard</option>
-                        <option value="amex">American Express</option>
-                    </select>
-                </div>
-                <button class="btn-glow" onclick="generateCards()" style="width: 100%;">⚡ GENERATE CARDS</button>
-            </div>
-            <div id="output"></div>
-        </div>
-    </div>
-
-    <div id="bin-lookup" class="page">
-        <div class="container">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🔍 BIN Lookup</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-                <div class="form-group">
-                    <label>Enter BIN (6 digits)</label>
-                    <input type="text" id="binLookup" placeholder="515462" maxlength="8">
-                </div>
-                <button class="btn-glow" onclick="lookupBin()" style="width: 100%;">🔍 LOOKUP</button>
-            </div>
-            <div id="binResult"></div>
-        </div>
-    </div>
-
-    <div id="address" class="page">
-        <div class="container">
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🏠 Address Generator</h2>
-            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-                <div class="form-group">
-                    <label>Country</label>
-                    <select id="countrySelect">
-                        <option value="kr">South Korea</option>
-                    </select>
-                </div>
-                <button class="btn-glow" onclick="generateAddress()" style="width: 100%; margin-bottom: 12px;">🏠 GENERATE ADDRESS</button>
-                <button class="btn-glow" onclick="copyAllAddress()" style="width: 100%; background: rgba(124, 58, 237, 0.5);">📋 COPY ALL</button>
-            </div>
-            <div id="addressResult"></div>
-        </div>
-    </div>
-
-    <script>
-        const KOREA_ADDRESSES = [
-            { name: "Kim Min-jun", address: "123 Gangnam-gu, Seoul", city: "Seoul", country: "South Korea", zip: "06000", phone: "+82-2-1234-5678", email: "kim.minjun@example.kr" },
-            { name: "Lee Ji-woo", address: "456 Jongno-gu, Seoul", city: "Seoul", country: "South Korea", zip: "03000", phone: "+82-2-2345-6789", email: "lee.jiwoo@example.kr" },
-            { name: "Park Seo-yun", address: "789 Mapo-gu, Seoul", city: "Seoul", country: "South Korea", zip: "04000", phone: "+82-2-3456-7890", email: "park.seoyun@example.kr" },
-            { name: "Choi Hae-won", address: "321 Songpa-gu, Seoul", city: "Seoul", country: "South Korea", zip: "05500", phone: "+82-2-4567-8901", email: "choi.haewon@example.kr" },
-            { name: "Jung Min-ho", address: "654 Gangbuk-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01000", phone: "+82-2-5678-9012", email: "jung.minho@example.kr" },
-            { name: "Kang Ye-jin", address: "987 Seodaemun-gu, Seoul", city: "Seoul", country: "South Korea", zip: "03500", phone: "+82-2-6789-0123", email: "kang.yejin@example.kr" },
-            { name: "Yoon Ji-ho", address: "147 Dongdaemun-gu, Seoul", city: "Seoul", country: "South Korea", zip: "02500", phone: "+82-2-7890-1234", email: "yoon.jiho@example.kr" },
-            { name: "Lim Soo-jin", address: "258 Seongbuk-gu, Seoul", city: "Seoul", country: "South Korea", zip: "02800", phone: "+82-2-8901-2345", email: "lim.soujin@example.kr" },
-            { name: "Han Tae-oh", address: "369 Nowon-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01500", phone: "+82-2-9012-3456", email: "han.taeoh@example.kr" },
-            { name: "Oh Min-seo", address: "741 Dobong-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01600", phone: "+82-2-0123-4567", email: "oh.minseo@example.kr" }
-        ];
-
-        let currentAddress = null;
-        let cardsGenerated = 0;
-        let luhnValid = 0;
-
-        function luhnCheck(num) {
-            let sum = 0, isEven = false;
-            for (let i = num.length - 1; i >= 0; i--) {
-                let digit = parseInt(num[i], 10);
-                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
-                sum += digit;
-                isEven = !isEven;
-            }
-            return sum % 10 === 0;
-        }
-
-        function generateLuhn(bin) {
-            const length = 16;
-            let num = bin + '0'.repeat(length - bin.length - 1);
-            let sum = 0, isEven = false;
-            for (let i = num.length - 1; i >= 0; i--) {
-                let digit = parseInt(num[i], 10);
-                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
-                sum += digit;
-                isEven = !isEven;
-            }
-            const checkDigit = (10 - (sum % 10)) % 10;
-            return num + checkDigit;
-        }
-
-        function getRandomName() {
-            const names = ['John Smith', 'Jane Doe', 'Michael Johnson', 'Sarah Williams', 'Robert Brown', 'Emily Davis', 'David Miller', 'Lisa Anderson'];
-            return names[Math.floor(Math.random() * names.length)];
-        }
-
-        function navigate(page) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            const pageId = page === '/' ? 'landing' : page.substring(1);
-            const pageEl = document.getElementById(pageId);
-            if (pageEl) pageEl.classList.add('active');
-            const link = document.querySelector(`[data-page="${pageId}"]`);
-            if (link) link.classList.add('active');
-            window.location.hash = page === '/' ? '' : page;
-        }
-
-        function generateCards() {
-            const bin = document.getElementById('binInput').value || '515462';
-            const qty = Math.min(parseInt(document.getElementById('quantity').value) || 10, 100);
-            const network = document.getElementById('network').value;
-
-            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
-
-            let cards = [];
-            for (let i = 0; i < qty; i++) {
-                const cardNum = generateLuhn(bin);
-                const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
-                const year = String(Math.floor(Math.random() * 6) + 27).padStart(2, '0');
-                const cvv = String(Math.floor(Math.random() * 900) + 100);
-                const name = getRandomName();
-                cards.push({ number: cardNum, expiry: `${month}/${year}`, cvv, name });
-                if (luhnCheck(cardNum)) luhnValid++;
-            }
-
-            cardsGenerated += qty;
-            document.getElementById('stat-cards').textContent = cardsGenerated;
-            document.getElementById('stat-valid').textContent = luhnValid;
-
-            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated ' + qty + ' Cards</h3>';
-            output += '<div class="output-cards">';
-            cards.forEach(card => {
-                const cardStr = `${card.number} | ${card.expiry} | ${card.cvv} | ${card.name}`;
-                output += `<div class="card-item"><span>${cardStr}</span><button class="btn-small" onclick="navigator.clipboard.writeText('${cardStr}')">📋 Copy</button></div>`;
-            });
-            output += '</div></div>';
-            document.getElementById('output').innerHTML = output;
-        }
-
-        function lookupBin() {
-            const bin = document.getElementById('binLookup').value;
-            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
-
-            fetch(`https://lookup.binlist.net/${bin}`)
-                .then(r => r.json())
-                .then(data => {
-                    const result = `<div class="glass-panel">
-                        <h3 style="margin-bottom: 16px;">BIN: ${bin}</h3>
-                        <p><strong>Bank:</strong> ${data.bank?.name || 'Unknown'}</p>
-                        <p><strong>Country:</strong> ${data.country?.name || 'Unknown'} (${data.country?.alpha2 || 'N/A'})</p>
-                        <p><strong>Type:</strong> ${data.type || 'Unknown'}</p>
-                        <p><strong>Brand:</strong> ${data.brand || 'Unknown'}</p>
-                        <p><strong>Currency:</strong> ${data.country?.currency || 'Unknown'}</p>
-                    </div>`;
-                    document.getElementById('binResult').innerHTML = result;
-                })
-                .catch(e => {
-                    document.getElementById('binResult').innerHTML = '<div class="glass-panel"><p style="color: #ef4444;">BIN not found or API error</p></div>';
-                });
-        }
-
-        function generateAddress() {
-            currentAddress = KOREA_ADDRESSES[Math.floor(Math.random() * KOREA_ADDRESSES.length)];
-            const result = `<div class="glass-panel">
-                <h3 style="margin-bottom: 16px;">Generated Address</h3>
-                <div class="result-card">
-                    <p><strong>Name:</strong> ${currentAddress.name}</p>
-                    <p><strong>Address:</strong> ${currentAddress.address}</p>
-                    <p><strong>City:</strong> ${currentAddress.city}</p>
-                    <p><strong>Country:</strong> ${currentAddress.country}</p>
-                    <p><strong>ZIP:</strong> ${currentAddress.zip}</p>
-                    <p><strong>Phone:</strong> ${currentAddress.phone}</p>
-                    <p><strong>Email:</strong> ${currentAddress.email}</p>
-                </div>
-            </div>`;
-            document.getElementById('addressResult').innerHTML = result;
-        }
-
-        function copyAllAddress() {
-            if (!currentAddress) { alert('Generate address first'); return; }
-            const text = `Name: ${currentAddress.name}\nAddress: ${currentAddress.address}\nCity: ${currentAddress.city}\nCountry: ${currentAddress.country}\nZIP: ${currentAddress.zip}\nPhone: ${currentAddress.phone}\nEmail: ${currentAddress.email}`;
-            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
-        }
-
-        window.addEventListener('hashchange', () => navigate(window.location.hash || '/'));
-        if (window.location.hash) navigate(window.location.hash);
-    </script>
-</body>
-</html>
+     1|<!DOCTYPE html>
+     2|<html lang="en">
+     3|<head>
+     4|    <meta charset="UTF-8">
+     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6|    <title>DejaVu Tools Card</title>
+     7|    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+     8|    <style>
+     9|        * { margin: 0; padding: 0; box-sizing: border-box; }
+    10|        :root {
+    11|            --bg-deep: #050508;
+    12|            --bg-surface: #0c0c14;
+    13|            --accent-1: #7c3aed;
+    14|            --accent-2: #06b6d4;
+    15|            --text: #f0f0f5;
+    16|            --text-muted: #6b7280;
+    17|            --border: rgba(124, 58, 237, 0.15);
+    18|        }
+    19|        body {
+    20|            background: var(--bg-deep);
+    21|            color: var(--text);
+    22|            font-family: 'Inter', sans-serif;
+    23|            line-height: 1.6;
+    24|        }
+    25|        body::before {
+    26|            content: '';
+    27|            position: fixed;
+    28|            inset: 0;
+    29|            background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.05) 0%, transparent 50%),
+    30|                        radial-gradient(circle at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
+    31|            z-index: -1;
+    32|        }
+    33|        .navbar {
+    34|            background: rgba(12, 12, 20, 0.7);
+    35|            backdrop-filter: blur(16px);
+    36|            border-bottom: 1px solid var(--border);
+    37|            padding: 16px 32px;
+    38|            position: sticky;
+    39|            top: 0;
+    40|            z-index: 100;
+    41|            display: flex;
+    42|            justify-content: space-between;
+    43|            align-items: center;
+    44|        }
+    45|        .navbar-brand {
+    46|            font-family: 'Space Grotesk', sans-serif;
+    47|            font-size: 24px;
+    48|            font-weight: 700;
+    49|            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    50|            -webkit-background-clip: text;
+    51|            -webkit-text-fill-color: transparent;
+    52|            background-clip: text;
+    53|            cursor: pointer;
+    54|        }
+    55|        .navbar-links { display: flex; gap: 32px; align-items: center; }
+    56|        .navbar-links a {
+    57|            color: var(--text-muted);
+    58|            text-decoration: none;
+    59|            cursor: pointer;
+    60|            transition: color 0.3s;
+    61|            font-size: 14px;
+    62|        }
+    63|        .navbar-links a:hover, .navbar-links a.active { color: var(--accent-1); }
+    64|        .glass-panel {
+    65|            background: rgba(12, 12, 20, 0.7);
+    66|            backdrop-filter: blur(16px);
+    67|            border: 1px solid var(--border);
+    68|            border-radius: 16px;
+    69|            padding: 32px;
+    70|            transition: all 0.3s;
+    71|        }
+    72|        .glass-panel:hover {
+    73|            border-color: rgba(124, 58, 237, 0.4);
+    74|            box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
+    75|        }
+    76|        .btn-glow {
+    77|            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    78|            border: none;
+    79|            padding: 12px 24px;
+    80|            border-radius: 8px;
+    81|            color: white;
+    82|            font-weight: 600;
+    83|            cursor: pointer;
+    84|            transition: all 0.3s;
+    85|            font-size: 14px;
+    86|        }
+    87|        .btn-glow:hover { transform: translateY(-2px); }
+    88|        .btn-small {
+    89|            background: var(--accent-1);
+    90|            border: none;
+    91|            padding: 8px 16px;
+    92|            border-radius: 6px;
+    93|            color: white;
+    94|            cursor: pointer;
+    95|            font-size: 12px;
+    96|            transition: opacity 0.3s;
+    97|        }
+    98|        .btn-small:hover { opacity: 0.8; }
+    99|        .page { display: none; min-height: calc(100vh - 80px); padding: 64px 32px; }
+   100|        .page.active { display: block; }
+   101|        .container { max-width: 1200px; margin: 0 auto; }
+   102|        .hero { text-align: center; margin-bottom: 80px; }
+   103|        .hero h1 {
+   104|            font-family: 'Space Grotesk', sans-serif;
+   105|            font-size: 64px;
+   106|            font-weight: 700;
+   107|            margin-bottom: 16px;
+   108|            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+   109|            -webkit-background-clip: text;
+   110|            -webkit-text-fill-color: transparent;
+   111|            background-clip: text;
+   112|        }
+   113|        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 80px; }
+   114|        .stat-card { text-align: center; }
+   115|        .stat-number {
+   116|            font-family: 'Space Grotesk', sans-serif;
+   117|            font-size: 48px;
+   118|            font-weight: 700;
+   119|            color: var(--accent-1);
+   120|        }
+   121|        .stat-label { color: var(--text-muted); font-size: 14px; }
+   122|        .form-group { margin-bottom: 24px; }
+   123|        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+   124|        .form-group input, .form-group select {
+   125|            width: 100%;
+   126|            padding: 12px 16px;
+   127|            background: rgba(12, 12, 20, 0.7);
+   128|            border: 1px solid var(--border);
+   129|            border-radius: 8px;
+   130|            color: var(--text);
+   131|            font-family: 'JetBrains Mono', monospace;
+   132|            transition: border-color 0.3s;
+   133|        }
+   134|        .form-group input:focus, .form-group select:focus {
+   135|            outline: none;
+   136|            border-color: var(--accent-1);
+   137|        }
+   138|        .output-cards { display: grid; gap: 16px; margin-top: 32px; }
+   139|        .card-item {
+   140|            background: rgba(12, 12, 20, 0.7);
+   141|            border: 1px solid var(--border);
+   142|            border-radius: 8px;
+   143|            padding: 16px;
+   144|            font-family: 'JetBrains Mono', monospace;
+   145|            font-size: 13px;
+   146|            display: flex;
+   147|            justify-content: space-between;
+   148|            align-items: center;
+   149|            word-break: break-all;
+   150|        }
+   151|        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px; }
+   152|        .result-card {
+   153|            background: rgba(12, 12, 20, 0.7);
+   154|            border: 1px solid var(--border);
+   155|            border-radius: 8px;
+   156|            padding: 20px;
+   157|        }
+   158|        .result-card p { margin-bottom: 8px; font-size: 14px; }
+   159|        .result-card strong { color: var(--accent-1); }
+   160|        @media (max-width: 768px) {
+   161|            .hero h1 { font-size: 40px; }
+   162|            .stats { grid-template-columns: 1fr; }
+   163|            .card-item { flex-direction: column; align-items: flex-start; }
+   164|        }
+   165|    </style>
+   166|</head>
+   167|<body>
+   168|    <nav class="navbar">
+   169|        <div class="navbar-brand" onclick="navigate('/')">⚡ DejaVu</div>
+   170|        <div class="navbar-links">
+   171|            <a onclick="navigate('/')" class="nav-link active" data-page="landing">Home</a>
+   172|            <a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
+   173|            <a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
+   174|            <a onclick="navigate('/address')" class="nav-link" data-page="address">Address</a>
+   175|        </div>
+   176|    </nav>
+   177|
+   178|    <div id="landing" class="page active">
+   179|        <div class="container">
+   180|            <div class="hero">
+   181|                <h1>⚡ DejaVu Tools Card</h1>
+   182|                <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 32px;">Generate. Validate. Dominate.</p>
+   183|            </div>
+   184|            <div class="stats">
+   185|                <div class="stat-card">
+   186|                    <div class="stat-number" id="stat-cards">0</div>
+   187|                    <div class="stat-label">Cards Generated</div>
+   188|                </div>
+   189|                <div class="stat-card">
+   190|                    <div class="stat-number" id="stat-countries">10</div>
+   191|                    <div class="stat-label">Countries</div>
+   192|                </div>
+   193|                <div class="stat-card">
+   194|                    <div class="stat-number" id="stat-valid">0</div>
+   195|                    <div class="stat-label">Luhn Valid</div>
+   196|                </div>
+   197|            </div>
+   198|        </div>
+   199|    </div>
+   200|
+   201|    <div id="generate" class="page">
+   202|        <div class="container">
+   203|            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">💳 Credit Card Generator</h2>
+   204|            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
+   205|                <div class="form-group">
+   206|                    <label>BIN Prefix (optional, 6-8 digits)</label>
+   207|                    <input type="text" id="binInput" placeholder="515462" value="515462">
+   208|                </div>
+   209|                <div class="form-group">
+   210|                    <label>Quantity (1-100)</label>
+   211|                    <input type="number" id="quantity" min="1" max="100" value="10">
+   212|                </div>
+   213|                <div class="form-group">
+   214|                    <label>Network</label>
+   215|                    <select id="network">
+   216|                        <option value="visa">Visa</option>
+   217|                        <option value="mastercard" selected>Mastercard</option>
+   218|                        <option value="amex">American Express</option>
+   219|                    </select>
+   220|                </div>
+   221|                <button class="btn-glow" onclick="generateCards()" style="width: 100%;">⚡ GENERATE CARDS</button>
+   222|            </div>
+   223|            <div id="output"></div>
+   224|        </div>
+   225|    </div>
+   226|
+   227|    <div id="bin-lookup" class="page">
+   228|        <div class="container">
+   229|            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🔍 BIN Lookup</h2>
+   230|            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
+   231|                <div class="form-group">
+   232|                    <label>Enter BIN (6 digits)</label>
+   233|                    <input type="text" id="binLookup" placeholder="515462" maxlength="8">
+   234|                </div>
+   235|                <button class="btn-glow" onclick="lookupBin()" style="width: 100%;">🔍 LOOKUP</button>
+   236|            </div>
+   237|            <div id="binResult"></div>
+   238|        </div>
+   239|    </div>
+   240|
+   241|    <div id="address" class="page">
+   242|        <div class="container">
+   243|            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🏠 Address Generator</h2>
+   244|            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
+   245|                <div class="form-group">
+   246|                    <label>Country</label>
+   247|                    <select id="countrySelect">
+   248|                        <option value="kr">South Korea</option>
+   249|                    </select>
+   250|                </div>
+   251|                <button class="btn-glow" onclick="generateAddress()" style="width: 100%; margin-bottom: 12px;">🏠 GENERATE ADDRESS</button>
+   252|                <button class="btn-glow" onclick="copyAllAddress()" style="width: 100%; background: rgba(124, 58, 237, 0.5);">📋 COPY ALL</button>
+   253|            </div>
+   254|            <div id="addressResult"></div>
+   255|        </div>
+   256|    </div>
+   257|
+   258|    <script>
+   259|        const KOREA_ADDRESSES = [
+   260|            { name: "Kim Min-jun", address: "123 Gangnam-gu, Seoul", city: "Seoul", country: "South Korea", zip: "06000", phone: "+82-2-1234-5678", email: "kim.minjun@example.kr" },
+   261|            { name: "Lee Ji-woo", address: "456 Jongno-gu, Seoul", city: "Seoul", country: "South Korea", zip: "03000", phone: "+82-2-2345-6789", email: "lee.jiwoo@example.kr" },
+   262|            { name: "Park Seo-yun", address: "789 Mapo-gu, Seoul", city: "Seoul", country: "South Korea", zip: "04000", phone: "+82-2-3456-7890", email: "park.seoyun@example.kr" },
+   263|            { name: "Choi Hae-won", address: "321 Songpa-gu, Seoul", city: "Seoul", country: "South Korea", zip: "05500", phone: "+82-2-4567-8901", email: "choi.haewon@example.kr" },
+   264|            { name: "Jung Min-ho", address: "654 Gangbuk-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01000", phone: "+82-2-5678-9012", email: "jung.minho@example.kr" },
+   265|            { name: "Kang Ye-jin", address: "987 Seodaemun-gu, Seoul", city: "Seoul", country: "South Korea", zip: "03500", phone: "+82-2-6789-0123", email: "kang.yejin@example.kr" },
+   266|            { name: "Yoon Ji-ho", address: "147 Dongdaemun-gu, Seoul", city: "Seoul", country: "South Korea", zip: "02500", phone: "+82-2-7890-1234", email: "yoon.jiho@example.kr" },
+   267|            { name: "Lim Soo-jin", address: "258 Seongbuk-gu, Seoul", city: "Seoul", country: "South Korea", zip: "02800", phone: "+82-2-8901-2345", email: "lim.soujin@example.kr" },
+   268|            { name: "Han Tae-oh", address: "369 Nowon-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01500", phone: "+82-2-9012-3456", email: "han.taeoh@example.kr" },
+   269|            { name: "Oh Min-seo", address: "741 Dobong-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01600", phone: "+82-2-0123-4567", email: "oh.minseo@example.kr" }
+   270|        ];
+   271|
+   272|        let currentAddress = null;
+   273|        let cardsGenerated = 0;
+   274|        let luhnValid = 0;
+   275|
+   276|        function luhnCheck(num) {
+   277|            let sum = 0, isEven = false;
+   278|            for (let i = num.length - 1; i >= 0; i--) {
+   279|                let digit = parseInt(num[i], 10);
+   280|                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
+   281|                sum += digit;
+   282|                isEven = !isEven;
+   283|            }
+   284|            return sum % 10 === 0;
+   285|        }
+   286|
+   287|        function generateLuhn(bin) {
+   288|            const length = 16;
+   289|            let num = bin + '0'.repeat(length - bin.length - 1);
+   290|            let sum = 0, isEven = false;
+   291|            for (let i = num.length - 1; i >= 0; i--) {
+   292|                let digit = parseInt(num[i], 10);
+   293|                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
+   294|                sum += digit;
+   295|                isEven = !isEven;
+   296|            }
+   297|            const checkDigit = (10 - (sum % 10)) % 10;
+   298|            return num + checkDigit;
+   299|        }
+   300|
+   301|        function getRandomName() {
+   302|            const names = ['John Smith', 'Jane Doe', 'Michael Johnson', 'Sarah Williams', 'Robert Brown', 'Emily Davis', 'David Miller', 'Lisa Anderson'];
+   303|            return names[Math.floor(Math.random() * names.length)];
+   304|        }
+   305|
+   306|        function navigate(page) {
+   307|            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+   308|            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+   309|            const pageId = page === '/' ? 'landing' : page.substring(1);
+   310|            const pageEl = document.getElementById(pageId);
+   311|            if (pageEl) pageEl.classList.add('active');
+   312|            const link = document.querySelector(`[data-page="${pageId}"]`);
+   313|            if (link) link.classList.add('active');
+   314|            window.location.hash = page === '/' ? '' : page;
+   315|        }
+   316|
+   317|        function generateCards() {
+   318|            const bin = document.getElementById('binInput').value || '515462';
+   319|            const qty = Math.min(parseInt(document.getElementById('quantity').value) || 10, 100);
+   320|            const network = document.getElementById('network').value;
+   321|
+   322|            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+   323|
+   324|            let cards = [];
+   325|            for (let i = 0; i < qty; i++) {
+   326|                const cardNum = generateLuhn(bin);
+   327|                const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+   328|                const year = String(Math.floor(Math.random() * 6) + 27).padStart(2, '0');
+   329|                const cvv = String(Math.floor(Math.random() * 900) + 100);
+   330|                const name = getRandomName();
+   331|                cards.push({ number: cardNum, expiry: `${month}/${year}`, cvv, name });
+   332|                if (luhnCheck(cardNum)) luhnValid++;
+   333|            }
+   334|
+   335|            cardsGenerated += qty;
+   336|            document.getElementById('stat-cards').textContent = cardsGenerated;
+   337|            document.getElementById('stat-valid').textContent = luhnValid;
+   338|
+   339|            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated ' + qty + ' Cards</h3>';
+   340|            output += '<div class="output-cards">';
+   341|            cards.forEach(card => {
+   342|                const cardStr = `${card.number} | ${card.expiry} | ${card.cvv} | ${card.name}`;
+   343|                output += `<div class="card-item"><span>${cardStr}</span><button class="btn-small" onclick="navigator.clipboard.writeText('${cardStr}')">📋 Copy</button></div>`;
+   344|            });
+   345|            output += '</div></div>';
+   346|            document.getElementById('output').innerHTML = output;
+   347|        }
+   348|
+   349|        function lookupBin() {
+   350|            const bin = document.getElementById('binLookup').value;
+   351|            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+   352|
+   353|            fetch(`https://lookup.binlist.net/${bin}`)
+   354|                .then(r => r.json())
+   355|                .then(data => {
+   356|                    const result = `<div class="glass-panel">
+   357|                        <h3 style="margin-bottom: 16px;">BIN: ${bin}</h3>
+   358|                        <p><strong>Bank:</strong> ${data.bank?.name || 'Unknown'}</p>
+   359|                        <p><strong>Country:</strong> ${data.country?.name || 'Unknown'} (${data.country?.alpha2 || 'N/A'})</p>
+   360|                        <p><strong>Type:</strong> ${data.type || 'Unknown'}</p>
+   361|                        <p><strong>Brand:</strong> ${data.brand || 'Unknown'}</p>
+   362|                        <p><strong>Currency:</strong> ${data.country?.currency || 'Unknown'}</p>
+   363|                    </div>`;
+   364|                    document.getElementById('binResult').innerHTML = result;
+   365|                })
+   366|                .catch(e => {
+   367|                    document.getElementById('binResult').innerHTML = '<div class="glass-panel"><p style="color: #ef4444;">BIN not found or API error</p></div>';
+   368|                });
+   369|        }
+   370|
+   371|        function generateAddress() {
+   372|            currentAddress = KOREA_ADDRESSES[Math.floor(Math.random() * KOREA_ADDRESSES.length)];
+   373|            const result = `<div class="glass-panel">
+   374|                <h3 style="margin-bottom: 16px;">Generated Address</h3>
+   375|                <div class="result-card">
+   376|                    <p><strong>Name:</strong> ${currentAddress.name}</p>
+   377|                    <p><strong>Address:</strong> ${currentAddress.address}</p>
+   378|                    <p><strong>City:</strong> ${currentAddress.city}</p>
+   379|                    <p><strong>Country:</strong> ${currentAddress.country}</p>
+   380|                    <p><strong>ZIP:</strong> ${currentAddress.zip}</p>
+   381|                    <p><strong>Phone:</strong> ${currentAddress.phone}</p>
+   382|                    <p><strong>Email:</strong> ${currentAddress.email}</p>
+   383|                </div>
+   384|            </div>`;
+   385|            document.getElementById('addressResult').innerHTML = result;
+   386|        }
+   387|
+   388|        function copyAllAddress() {
+   389|            if (!currentAddress) { alert('Generate address first'); return; }
+   390|            const text = `Name: ${currentAddress.name}\nAddress: ${currentAddress.address}\nCity: ${currentAddress.city}\nCountry: ${currentAddress.country}\nZIP: ${currentAddress.zip}\nPhone: ${currentAddress.phone}\nEmail: ${currentAddress.email}`;
+   391|            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
+   392|        }
+   393|
+   394|        window.addEventListener('hashchange', () => navigate(window.location.hash || '/'));
+   395|        if (window.location.hash) navigate(window.location.hash);
+   396|    </script>
+   397|</body>
+   398|</html>
