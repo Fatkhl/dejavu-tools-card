@@ -1,387 +1,387 @@
-     1|     1|     1|<!DOCTYPE html>
-     2|     2|     2|<html lang="en">
-     3|     3|     3|<head>
-     4|     4|     4|    <meta charset="UTF-8">
-     5|     5|     5|    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6|     6|     6|    <title>DejaVu Tools Card</title>
-     7|     7|     7|    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-     8|     8|     8|    <style>
-     9|     9|     9|        * { margin: 0; padding: 0; box-sizing: border-box; }
-    10|    10|    10|        :root {
-    11|    11|    11|            --bg-deep: #050508;
-    12|    12|    12|            --bg-surface: #0c0c14;
-    13|    13|    13|            --accent-1: #7c3aed;
-    14|    14|    14|            --accent-2: #06b6d4;
-    15|    15|    15|            --text: #f0f0f5;
-    16|    16|    16|            --text-muted: #6b7280;
-    17|    17|    17|            --border: rgba(124, 58, 237, 0.15);
-    18|    18|    18|        }
-    19|    19|    19|        body {
-    20|    20|    20|            background: var(--bg-deep);
-    21|    21|    21|            color: var(--text);
-    22|    22|    22|            font-family: 'Inter', sans-serif;
-    23|    23|    23|            line-height: 1.6;
-    24|    24|    24|        }
-    25|    25|    25|        body::before {
-    26|    26|    26|            content: '';
-    27|    27|    27|            position: fixed;
-    28|    28|    28|            inset: 0;
-    29|    29|    29|            background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.05) 0%, transparent 50%),
-    30|    30|    30|                        radial-gradient(circle at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
-    31|    31|    31|            z-index: -1;
-    32|    32|    32|        }
-    33|    33|    33|        .navbar {
-    34|    34|    34|            background: rgba(12, 12, 20, 0.7);
-    35|    35|    35|            backdrop-filter: blur(16px);
-    36|    36|    36|            border-bottom: 1px solid var(--border);
-    37|    37|    37|            padding: 16px 32px;
-    38|    38|    38|            position: sticky;
-    39|    39|    39|            top: 0;
-    40|    40|    40|            z-index: 100;
-    41|    41|    41|            display: flex;
-    42|    42|    42|            justify-content: space-between;
-    43|    43|    43|            align-items: center;
-    44|    44|    44|        }
-    45|    45|    45|        .navbar-brand {
-    46|    46|    46|            font-family: 'Space Grotesk', sans-serif;
-    47|    47|    47|            font-size: 24px;
-    48|    48|    48|            font-weight: 700;
-    49|    49|    49|            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-    50|    50|    50|            -webkit-background-clip: text;
-    51|    51|    51|            -webkit-text-fill-color: transparent;
-    52|    52|    52|            background-clip: text;
-    53|    53|    53|            cursor: pointer;
-    54|    54|    54|        }
-    55|    55|    55|        .navbar-links { display: flex; gap: 32px; align-items: center; }
-    56|    56|    56|        .navbar-links a {
-    57|    57|    57|            color: var(--text-muted);
-    58|    58|    58|            text-decoration: none;
-    59|    59|    59|            cursor: pointer;
-    60|    60|    60|            transition: color 0.3s;
-    61|    61|    61|            font-size: 14px;
-    62|    62|    62|        }
-    63|    63|    63|        .navbar-links a:hover, .navbar-links a.active { color: var(--accent-1); }
-    64|    64|    64|        .glass-panel {
-    65|    65|    65|            background: rgba(12, 12, 20, 0.7);
-    66|    66|    66|            backdrop-filter: blur(16px);
-    67|    67|    67|            border: 1px solid var(--border);
-    68|    68|    68|            border-radius: 16px;
-    69|    69|    69|            padding: 32px;
-    70|    70|    70|            transition: all 0.3s;
-    71|    71|    71|        }
-    72|    72|    72|        .glass-panel:hover {
-    73|    73|    73|            border-color: rgba(124, 58, 237, 0.4);
-    74|    74|    74|            box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
-    75|    75|    75|        }
-    76|    76|    76|        .btn-glow {
-    77|    77|    77|            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-    78|    78|    78|            border: none;
-    79|    79|    79|            padding: 12px 24px;
-    80|    80|    80|            border-radius: 8px;
-    81|    81|    81|            color: white;
-    82|    82|    82|            font-weight: 600;
-    83|    83|    83|            cursor: pointer;
-    84|    84|    84|            transition: all 0.3s;
-    85|    85|    85|            font-size: 14px;
-    86|    86|    86|        }
-    87|    87|    87|        .btn-glow:hover { transform: translateY(-2px); }
-    88|    88|    88|        .btn-small {
-    89|    89|    89|            background: var(--accent-1);
-    90|    90|    90|            border: none;
-    91|    91|    91|            padding: 8px 16px;
-    92|    92|    92|            border-radius: 6px;
-    93|    93|    93|            color: white;
-    94|    94|    94|            cursor: pointer;
-    95|    95|    95|            font-size: 12px;
-    96|    96|    96|            transition: opacity 0.3s;
-    97|    97|    97|        }
-    98|    98|    98|        .btn-small:hover { opacity: 0.8; }
-    99|    99|    99|        .page { display: none; min-height: calc(100vh - 80px); padding: 64px 32px; }
-   100|   100|   100|        .page.active { display: block; }
-   101|   101|   101|        .container { max-width: 1200px; margin: 0 auto; }
-   102|   102|   102|        .hero { text-align: center; margin-bottom: 80px; }
-   103|   103|   103|        .hero h1 {
-   104|   104|   104|            font-family: 'Space Grotesk', sans-serif;
-   105|   105|   105|            font-size: 64px;
-   106|   106|   106|            font-weight: 700;
-   107|   107|   107|            margin-bottom: 16px;
-   108|   108|   108|            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-   109|   109|   109|            -webkit-background-clip: text;
-   110|   110|   110|            -webkit-text-fill-color: transparent;
-   111|   111|   111|            background-clip: text;
-   112|   112|   112|        }
-   113|   113|   113|        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 80px; }
-   114|   114|   114|        .stat-card { text-align: center; }
-   115|   115|   115|        .stat-number {
-   116|   116|   116|            font-family: 'Space Grotesk', sans-serif;
-   117|   117|   117|            font-size: 48px;
-   118|   118|   118|            font-weight: 700;
-   119|   119|   119|            color: var(--accent-1);
-   120|   120|   120|        }
-   121|   121|   121|        .stat-label { color: var(--text-muted); font-size: 14px; }
-   122|   122|   122|        .form-group { margin-bottom: 24px; }
-   123|   123|   123|        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-   124|   124|   124|        .form-group input, .form-group select {
-   125|   125|   125|            width: 100%;
-   126|   126|   126|            padding: 12px 16px;
-   127|   127|   127|            background: rgba(12, 12, 20, 0.7);
-   128|   128|   128|            border: 1px solid var(--border);
-   129|   129|   129|            border-radius: 8px;
-   130|   130|   130|            color: var(--text);
-   131|   131|   131|            font-family: 'JetBrains Mono', monospace;
-   132|   132|   132|            transition: border-color 0.3s;
-   133|   133|   133|        }
-   134|   134|   134|        .form-group input:focus, .form-group select:focus {
-   135|   135|   135|            outline: none;
-   136|   136|   136|            border-color: var(--accent-1);
-   137|   137|   137|        }
-   138|   138|   138|        .output-cards { display: grid; gap: 16px; margin-top: 32px; }
-   139|   139|   139|        .card-item {
-   140|   140|   140|            background: rgba(12, 12, 20, 0.7);
-   141|   141|   141|            border: 1px solid var(--border);
-   142|   142|   142|            border-radius: 8px;
-   143|   143|   143|            padding: 16px;
-   144|   144|   144|            font-family: 'JetBrains Mono', monospace;
-   145|   145|   145|            font-size: 13px;
-   146|   146|   146|            display: flex;
-   147|   147|   147|            justify-content: space-between;
-   148|   148|   148|            align-items: center;
-   149|   149|   149|            word-break: break-all;
-   150|   150|   150|        }
-   151|   151|   151|        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px; }
-   152|   152|   152|        .result-card {
-   153|   153|   153|            background: rgba(12, 12, 20, 0.7);
-   154|   154|   154|            border: 1px solid var(--border);
-   155|   155|   155|            border-radius: 8px;
-   156|   156|   156|            padding: 20px;
-   157|   157|   157|        }
-   158|   158|   158|        .result-card p { margin-bottom: 8px; font-size: 14px; }
-   159|   159|   159|        .result-card strong { color: var(--accent-1); }
-   160|   160|   160|        @media (max-width: 768px) {
-   161|   161|   161|            .hero h1 { font-size: 40px; }
-   162|   162|   162|            .stats { grid-template-columns: 1fr; }
-   163|   163|   163|            .card-item { flex-direction: column; align-items: flex-start; }
-   164|   164|   164|        }
-   165|   165|   165|    </style>
-   166|   166|   166|</head>
-   167|   167|   167|<body>
-   168|   168|   168|    <nav class="navbar">
-   169|   169|   169|        <div class="navbar-brand" onclick="navigate('/')">⚡ DejaVu</div>
-   170|   170|   170|        <div class="navbar-links">
-   171|   171|   171|            <a onclick="navigate('/')" class="nav-link active" data-page="landing">Home</a>
-   172|   172|   172|            <a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
-   173|   173|   173|            <a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
-   174|   174|   174|            <a onclick="navigate('/address')" class="nav-link" data-page="address">Address</a>
-   175|   175|   175|        </div>
-   176|   176|   176|    </nav>
-   177|   177|   177|
-   178|   178|   178|    <div id="landing" class="page active">
-   179|   179|   179|        <div class="container">
-   180|   180|   180|            <div class="hero">
-   181|   181|   181|                <h1>⚡ DejaVu Tools Card</h1>
-   182|   182|   182|                <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 32px;">Generate. Validate. Dominate.</p>
-   183|   183|   183|            </div>
-   184|   184|   184|            <div class="stats">
-   185|   185|   185|                <div class="stat-card">
-   186|   186|   186|                    <div class="stat-number" id="stat-cards">0</div>
-   187|   187|   187|                    <div class="stat-label">Cards Generated</div>
-   188|   188|   188|                </div>
-   189|   189|   189|                <div class="stat-card">
-   190|   190|   190|                    <div class="stat-number" id="stat-countries">21</div>
-   191|   191|   191|                    <div class="stat-label">Countries</div>
-   192|   192|   192|                </div>
-   193|   193|   193|                <div class="stat-card">
-   194|   194|   194|                    <div class="stat-number" id="stat-valid">0</div>
-   195|   195|   195|                    <div class="stat-label">Luhn Valid</div>
-   196|   196|   196|                </div>
-   197|   197|   197|            </div>
-   198|   198|   198|        </div>
-   199|   199|   199|    </div>
-   200|   200|   200|
-   201|   201|   201|    <div id="generate" class="page">
-   202|   202|   202|        <div class="container">
-   203|   203|   203|            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">💳 Credit Card Generator</h2>
-   204|   204|   204|            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-   205|   205|   205|                <div class="form-group">
-   206|   206|   206|                    <label>BIN Prefix (optional, 6-8 digits)</label>
-   207|   207|   207|                    <input type="text" id="binInput" placeholder="515462" value="515462">
-   208|   208|   208|                </div>
-   209|   209|   209|                <div class="form-group">
-   210|   210|   210|                    <label>Quantity (1-100)</label>
-   211|   211|   211|                    <input type="number" id="quantity" min="1" max="100" value="10">
-   212|   212|   212|                </div>
-   213|   213|   213|                <div class="form-group">
-   214|   214|   214|                    <label>Network</label>
-   215|   215|   215|                    <select id="network">
-   216|   216|   216|                        <option value="visa">Visa</option>
-   217|   217|   217|                        <option value="mastercard" selected>Mastercard</option>
-   218|   218|   218|                        <option value="amex">American Express</option>
-   219|   219|   219|                    </select>
-   220|   220|   220|                </div>
-   221|   221|   221|                <button class="btn-glow" onclick="generateCards()" style="width: 100%;">⚡ GENERATE CARDS</button>
-   222|   222|   222|            </div>
-   223|   223|   223|            <div id="output"></div>
-   224|   224|   224|        </div>
-   225|   225|   225|    </div>
-   226|   226|   226|
-   227|   227|   227|    <div id="bin-lookup" class="page">
-   228|   228|   228|        <div class="container">
-   229|   229|   229|            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🔍 BIN Lookup</h2>
-   230|   230|   230|            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-   231|   231|   231|                <div class="form-group">
-   232|   232|   232|                    <label>Enter BIN (6 digits)</label>
-   233|   233|   233|                    <input type="text" id="binLookup" placeholder="515462" maxlength="8">
-   234|   234|   234|                </div>
-   235|   235|   235|                <button class="btn-glow" onclick="lookupBin()" style="width: 100%;">🔍 LOOKUP</button>
-   236|   236|   236|            </div>
-   237|   237|   237|            <div id="binResult"></div>
-   238|   238|   238|        </div>
-   239|   239|   239|    </div>
-   240|   240|   240|
-   241|   241|   241|    <div id="address" class="page">
-   242|   242|   242|        <div class="container">
-   243|   243|   243|            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🏠 Address Generator</h2>
-   244|   244|   244|            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
-   245|   245|   245|                <div class="form-group">
-   246|   246|   246|                    <label>Country</label>
-   247|   247|   247|                    <select id="countrySelect">
-   248|   248|   248|                        <option value="kr">South Korea</option>
-   249|   249|   249|                    </select>
-   250|   250|   250|                </div>
-   251|   251|   251|                <button class="btn-glow" onclick="generateAddress()" style="width: 100%; margin-bottom: 12px;">🏠 GENERATE ADDRESS</button>
-   252|   252|   252|                <button class="btn-glow" onclick="copyAllAddress()" style="width: 100%; background: rgba(124, 58, 237, 0.5);">📋 COPY ALL</button>
-   253|   253|   253|            </div>
-   254|   254|   254|            <div id="addressResult"></div>
-   255|   255|   255|        </div>
-   256|   256|   256|    </div>
-   257|   257|   257|
-   258|   258|   258|    <script>
-   259|   259|   259|        
-   331|   271|   271|
-   332|   272|   272|        let currentAddress = null;
-   333|   273|   273|        let cardsGenerated = 0;
-   334|   274|   274|        let luhnValid = 0;
-   335|   275|   275|
-   336|   276|   276|        function luhnCheck(num) {
-   337|   277|   277|            let sum = 0, isEven = false;
-   338|   278|   278|            for (let i = num.length - 1; i >= 0; i--) {
-   339|   279|   279|                let digit = parseInt(num[i], 10);
-   340|   280|   280|                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
-   341|   281|   281|                sum += digit;
-   342|   282|   282|                isEven = !isEven;
-   343|   283|   283|            }
-   344|   284|   284|            return sum % 10 === 0;
-   345|   285|   285|        }
-   346|   286|   286|
-   347|   287|   287|        function generateLuhn(bin) {
-   348|   288|   288|            const length = 16;
-   349|   289|   289|            let num = bin + '0'.repeat(length - bin.length - 1);
-   350|   290|   290|            let sum = 0, isEven = false;
-   351|   291|   291|            for (let i = num.length - 1; i >= 0; i--) {
-   352|   292|   292|                let digit = parseInt(num[i], 10);
-   353|   293|   293|                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
-   354|   294|   294|                sum += digit;
-   355|   295|   295|                isEven = !isEven;
-   356|   296|   296|            }
-   357|   297|   297|            const checkDigit = (10 - (sum % 10)) % 10;
-   358|   298|   298|            return num + checkDigit;
-   359|   299|   299|        }
-   360|   300|   300|
-   361|   301|   301|        function getRandomName() {
-   362|   302|   302|            const names = ['John Smith', 'Jane Doe', 'Michael Johnson', 'Sarah Williams', 'Robert Brown', 'Emily Davis', 'David Miller', 'Lisa Anderson'];
-   363|   303|   303|            return names[Math.floor(Math.random() * names.length)];
-   364|   304|   304|        }
-   365|   305|   305|
-   366|   306|   306|        function navigate(page) {
-   367|   307|   307|            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-   368|   308|   308|            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-   369|   309|   309|            const pageId = page === '/' ? 'landing' : page.substring(1);
-   370|   310|   310|            const pageEl = document.getElementById(pageId);
-   371|   311|   311|            if (pageEl) pageEl.classList.add('active');
-   372|   312|   312|            const link = document.querySelector(`[data-page="${pageId}"]`);
-   373|   313|   313|            if (link) link.classList.add('active');
-   374|   314|   314|            window.location.hash = page === '/' ? '' : page;
-   375|   315|   315|        }
-   376|   316|   316|
-   377|   317|   317|        function generateCards() {
-   378|   318|   318|            const bin = document.getElementById('binInput').value || '515462';
-   379|   319|   319|            const qty = Math.min(parseInt(document.getElementById('quantity').value) || 10, 100);
-   380|   320|   320|            const network = document.getElementById('network').value;
-   381|   321|   321|
-   382|   322|   322|            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
-   383|   323|   323|
-   384|   324|   324|            let cards = [];
-   385|   325|   325|            for (let i = 0; i < qty; i++) {
-   386|   326|   326|                const cardNum = generateLuhn(bin);
-   387|   327|   327|                const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
-   388|   328|   328|                const year = String(Math.floor(Math.random() * 6) + 27).padStart(2, '0');
-   389|   329|   329|                const cvv = String(Math.floor(Math.random() * 900) + 100);
-   390|   330|   330|                const name = getRandomName();
-   391|   331|   331|                cards.push({ number: cardNum, expiry: `${month}/${year}`, cvv, name });
-   392|   332|   332|                if (luhnCheck(cardNum)) luhnValid++;
-   393|   333|   333|            }
-   394|   334|   334|
-   395|   335|   335|            cardsGenerated += qty;
-   396|   336|   336|            document.getElementById('stat-cards').textContent = cardsGenerated;
-   397|   337|   337|            document.getElementById('stat-valid').textContent = luhnValid;
-   398|   338|   338|
-   399|   339|   339|            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated ' + qty + ' Cards</h3>';
-   400|   340|   340|            output += '<div class="output-cards">';
-   401|   341|   341|            cards.forEach(card => {
-   402|   342|   342|                const cardStr = `${card.number} | ${card.expiry} | ${card.cvv} | ${card.name}`;
-   403|   343|   343|                output += `<div class="card-item"><span>${cardStr}</span><button class="btn-small" onclick="navigator.clipboard.writeText('${cardStr}')">📋 Copy</button></div>`;
-   404|   344|   344|            });
-   405|   345|   345|            output += '</div></div>';
-   406|   346|   346|            document.getElementById('output').innerHTML = output;
-   407|   347|   347|        }
-   408|   348|   348|
-   409|   349|   349|        function lookupBin() {
-   410|   350|   350|            const bin = document.getElementById('binLookup').value;
-   411|   351|   351|            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
-   412|   352|   352|
-   413|   353|   353|            fetch(`https://lookup.binlist.net/${bin}`)
-   414|   354|   354|                .then(r => r.json())
-   415|   355|   355|                .then(data => {
-   416|   356|   356|                    const result = `<div class="glass-panel">
-   417|   357|   357|                        <h3 style="margin-bottom: 16px;">BIN: ${bin}</h3>
-   418|   358|   358|                        <p><strong>Bank:</strong> ${data.bank?.name || 'Unknown'}</p>
-   419|   359|   359|                        <p><strong>Country:</strong> ${data.country?.name || 'Unknown'} (${data.country?.alpha2 || 'N/A'})</p>
-   420|   360|   360|                        <p><strong>Type:</strong> ${data.type || 'Unknown'}</p>
-   421|   361|   361|                        <p><strong>Brand:</strong> ${data.brand || 'Unknown'}</p>
-   422|   362|   362|                        <p><strong>Currency:</strong> ${data.country?.currency || 'Unknown'}</p>
-   423|   363|   363|                    </div>`;
-   424|   364|   364|                    document.getElementById('binResult').innerHTML = result;
-   425|   365|   365|                })
-   426|   366|   366|                .catch(e => {
-   427|   367|   367|                    document.getElementById('binResult').innerHTML = '<div class="glass-panel"><p style="color: #ef4444;">BIN not found or API error</p></div>';
-   428|   368|   368|                });
-   429|   369|   369|        }
-   430|   370|   370|
-   431|   371|   371|        function generateAddress() {
-   432|   372|   372|            currentAddress = KOREA_ADDRESSES[Math.floor(Math.random() * KOREA_ADDRESSES.length)];
-   433|   373|   373|            const result = `<div class="glass-panel">
-   434|   374|   374|                <h3 style="margin-bottom: 16px;">Generated Address</h3>
-   435|   375|   375|                <div class="result-card">
-   436|   376|   376|                    <p><strong>Name:</strong> ${currentAddress.name}</p>
-   437|   377|   377|                    <p><strong>Address:</strong> ${currentAddress.address}</p>
-   438|   378|   378|                    <p><strong>City:</strong> ${currentAddress.city}</p>
-   439|   379|   379|                    <p><strong>Country:</strong> ${currentAddress.country}</p>
-   440|   380|   380|                    <p><strong>ZIP:</strong> ${currentAddress.zip}</p>
-   441|   381|   381|                    <p><strong>Phone:</strong> ${currentAddress.phone}</p>
-   442|   382|   382|                    <p><strong>Email:</strong> ${currentAddress.email}</p>
-   443|   383|   383|                </div>
-   444|   384|   384|            </div>`;
-   445|   385|   385|            document.getElementById('addressResult').innerHTML = result;
-   446|   386|   386|        }
-   447|   387|   387|
-   448|   388|   388|        function copyAllAddress() {
-   449|   389|   389|            if (!currentAddress) { alert('Generate address first'); return; }
-   450|   390|   390|            const text = `Name: ${currentAddress.name}\nAddress: ${currentAddress.address}\nCity: ${currentAddress.city}\nCountry: ${currentAddress.country}\nZIP: ${currentAddress.zip}\nPhone: ${currentAddress.phone}\nEmail: ${currentAddress.email}`;
-   451|   391|   391|            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
-   452|   392|   392|        }
-   453|   393|   393|
-   454|   394|   394|        window.addEventListener('hashchange', () => navigate(window.location.hash || '/'));
-   455|   395|   395|        if (window.location.hash) navigate(window.location.hash);
-   456|   396|   396|    </script>
-   457|   397|   397|</body>
-   458|   398|   398|</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DejaVu Tools Card</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-deep: #050508;
+            --bg-surface: #0c0c14;
+            --accent-1: #7c3aed;
+            --accent-2: #06b6d4;
+            --text: #f0f0f5;
+            --text-muted: #6b7280;
+            --border: rgba(124, 58, 237, 0.15);
+        }
+        body {
+            background: var(--bg-deep);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+        .navbar {
+            background: rgba(12, 12, 20, 0.7);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+        }
+        .navbar-links { display: flex; gap: 32px; align-items: center; }
+        .navbar-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+            font-size: 14px;
+        }
+        .navbar-links a:hover, .navbar-links a.active { color: var(--accent-1); }
+        .glass-panel {
+            background: rgba(12, 12, 20, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s;
+        }
+        .glass-panel:hover {
+            border-color: rgba(124, 58, 237, 0.4);
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
+        }
+        .btn-glow {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-glow:hover { transform: translateY(-2px); }
+        .btn-small {
+            background: var(--accent-1);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: opacity 0.3s;
+        }
+        .btn-small:hover { opacity: 0.8; }
+        .page { display: none; min-height: calc(100vh - 80px); padding: 64px 32px; }
+        .page.active { display: block; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .hero { text-align: center; margin-bottom: 80px; }
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 80px; }
+        .stat-card { text-align: center; }
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--accent-1);
+        }
+        .stat-label { color: var(--text-muted); font-size: 14px; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(12, 12, 20, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-1);
+        }
+        .output-cards { display: grid; gap: 16px; margin-top: 32px; }
+        .card-item {
+            background: rgba(12, 12, 20, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            word-break: break-all;
+        }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px; }
+        .result-card {
+            background: rgba(12, 12, 20, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .result-card p { margin-bottom: 8px; font-size: 14px; }
+        .result-card strong { color: var(--accent-1); }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 40px; }
+            .stats { grid-template-columns: 1fr; }
+            .card-item { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand" onclick="navigate('/')">⚡ DejaVu</div>
+        <div class="navbar-links">
+            <a onclick="navigate('/')" class="nav-link active" data-page="landing">Home</a>
+            <a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
+            <a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
+            <a onclick="navigate('/address')" class="nav-link" data-page="address">Address</a>
+        </div>
+    </nav>
+
+    <div id="landing" class="page active">
+        <div class="container">
+            <div class="hero">
+                <h1>⚡ DejaVu Tools Card</h1>
+                <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 32px;">Generate. Validate. Dominate.</p>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-cards">0</div>
+                    <div class="stat-label">Cards Generated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-countries">21</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="stat-valid">0</div>
+                    <div class="stat-label">Luhn Valid</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="generate" class="page">
+        <div class="container">
+            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">💳 Credit Card Generator</h2>
+            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
+                <div class="form-group">
+                    <label>BIN Prefix (optional, 6-8 digits)</label>
+                    <input type="text" id="binInput" placeholder="515462" value="515462">
+                </div>
+                <div class="form-group">
+                    <label>Quantity (1-100)</label>
+                    <input type="number" id="quantity" min="1" max="100" value="10">
+                </div>
+                <div class="form-group">
+                    <label>Network</label>
+                    <select id="network">
+                        <option value="visa">Visa</option>
+                        <option value="mastercard" selected>Mastercard</option>
+                        <option value="amex">American Express</option>
+                    </select>
+                </div>
+                <button class="btn-glow" onclick="generateCards()" style="width: 100%;">⚡ GENERATE CARDS</button>
+            </div>
+            <div id="output"></div>
+        </div>
+    </div>
+
+    <div id="bin-lookup" class="page">
+        <div class="container">
+            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🔍 BIN Lookup</h2>
+            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
+                <div class="form-group">
+                    <label>Enter BIN (6 digits)</label>
+                    <input type="text" id="binLookup" placeholder="515462" maxlength="8">
+                </div>
+                <button class="btn-glow" onclick="lookupBin()" style="width: 100%;">🔍 LOOKUP</button>
+            </div>
+            <div id="binResult"></div>
+        </div>
+    </div>
+
+    <div id="address" class="page">
+        <div class="container">
+            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🏠 Address Generator</h2>
+            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
+                <div class="form-group">
+                    <label>Country</label>
+                    <select id="countrySelect">
+                        <option value="kr">South Korea</option>
+                    </select>
+                </div>
+                <button class="btn-glow" onclick="generateAddress()" style="width: 100%; margin-bottom: 12px;">🏠 GENERATE ADDRESS</button>
+                <button class="btn-glow" onclick="copyAllAddress()" style="width: 100%; background: rgba(124, 58, 237, 0.5);">📋 COPY ALL</button>
+            </div>
+            <div id="addressResult"></div>
+        </div>
+    </div>
+
+    <script>
+        
+
+        let currentAddress = null;
+        let cardsGenerated = 0;
+        let luhnValid = 0;
+
+        function luhnCheck(num) {
+            let sum = 0, isEven = false;
+            for (let i = num.length - 1; i >= 0; i--) {
+                let digit = parseInt(num[i], 10);
+                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
+                sum += digit;
+                isEven = !isEven;
+            }
+            return sum % 10 === 0;
+        }
+
+        function generateLuhn(bin) {
+            const length = 16;
+            let num = bin + '0'.repeat(length - bin.length - 1);
+            let sum = 0, isEven = false;
+            for (let i = num.length - 1; i >= 0; i--) {
+                let digit = parseInt(num[i], 10);
+                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
+                sum += digit;
+                isEven = !isEven;
+            }
+            const checkDigit = (10 - (sum % 10)) % 10;
+            return num + checkDigit;
+        }
+
+        function getRandomName() {
+            const names = ['John Smith', 'Jane Doe', 'Michael Johnson', 'Sarah Williams', 'Robert Brown', 'Emily Davis', 'David Miller', 'Lisa Anderson'];
+            return names[Math.floor(Math.random() * names.length)];
+        }
+
+        function navigate(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            const pageId = page === '/' ? 'landing' : page.substring(1);
+            const pageEl = document.getElementById(pageId);
+            if (pageEl) pageEl.classList.add('active');
+            const link = document.querySelector(`[data-page="${pageId}"]`);
+            if (link) link.classList.add('active');
+            window.location.hash = page === '/' ? '' : page;
+        }
+
+        function generateCards() {
+            const bin = document.getElementById('binInput').value || '515462';
+            const qty = Math.min(parseInt(document.getElementById('quantity').value) || 10, 100);
+            const network = document.getElementById('network').value;
+
+            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+
+            let cards = [];
+            for (let i = 0; i < qty; i++) {
+                const cardNum = generateLuhn(bin);
+                const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+                const year = String(Math.floor(Math.random() * 6) + 27).padStart(2, '0');
+                const cvv = String(Math.floor(Math.random() * 900) + 100);
+                const name = getRandomName();
+                cards.push({ number: cardNum, expiry: `${month}/${year}`, cvv, name });
+                if (luhnCheck(cardNum)) luhnValid++;
+            }
+
+            cardsGenerated += qty;
+            document.getElementById('stat-cards').textContent = cardsGenerated;
+            document.getElementById('stat-valid').textContent = luhnValid;
+
+            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated ' + qty + ' Cards</h3>';
+            output += '<div class="output-cards">';
+            cards.forEach(card => {
+                const cardStr = `${card.number} | ${card.expiry} | ${card.cvv} | ${card.name}`;
+                output += `<div class="card-item"><span>${cardStr}</span><button class="btn-small" onclick="navigator.clipboard.writeText('${cardStr}')">📋 Copy</button></div>`;
+            });
+            output += '</div></div>';
+            document.getElementById('output').innerHTML = output;
+        }
+
+        function lookupBin() {
+            const bin = document.getElementById('binLookup').value;
+            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+
+            fetch(`https://lookup.binlist.net/${bin}`)
+                .then(r => r.json())
+                .then(data => {
+                    const result = `<div class="glass-panel">
+                        <h3 style="margin-bottom: 16px;">BIN: ${bin}</h3>
+                        <p><strong>Bank:</strong> ${data.bank?.name || 'Unknown'}</p>
+                        <p><strong>Country:</strong> ${data.country?.name || 'Unknown'} (${data.country?.alpha2 || 'N/A'})</p>
+                        <p><strong>Type:</strong> ${data.type || 'Unknown'}</p>
+                        <p><strong>Brand:</strong> ${data.brand || 'Unknown'}</p>
+                        <p><strong>Currency:</strong> ${data.country?.currency || 'Unknown'}</p>
+                    </div>`;
+                    document.getElementById('binResult').innerHTML = result;
+                })
+                .catch(e => {
+                    document.getElementById('binResult').innerHTML = '<div class="glass-panel"><p style="color: #ef4444;">BIN not found or API error</p></div>';
+                });
+        }
+
+        function generateAddress() {
+            currentAddress = KOREA_ADDRESSES[Math.floor(Math.random() * KOREA_ADDRESSES.length)];
+            const result = `<div class="glass-panel">
+                <h3 style="margin-bottom: 16px;">Generated Address</h3>
+                <div class="result-card">
+                    <p><strong>Name:</strong> ${currentAddress.name}</p>
+                    <p><strong>Address:</strong> ${currentAddress.address}</p>
+                    <p><strong>City:</strong> ${currentAddress.city}</p>
+                    <p><strong>Country:</strong> ${currentAddress.country}</p>
+                    <p><strong>ZIP:</strong> ${currentAddress.zip}</p>
+                    <p><strong>Phone:</strong> ${currentAddress.phone}</p>
+                    <p><strong>Email:</strong> ${currentAddress.email}</p>
+                </div>
+            </div>`;
+            document.getElementById('addressResult').innerHTML = result;
+        }
+
+        function copyAllAddress() {
+            if (!currentAddress) { alert('Generate address first'); return; }
+            const text = `Name: ${currentAddress.name}\nAddress: ${currentAddress.address}\nCity: ${currentAddress.city}\nCountry: ${currentAddress.country}\nZIP: ${currentAddress.zip}\nPhone: ${currentAddress.phone}\nEmail: ${currentAddress.email}`;
+            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
+        }
+
+        window.addEventListener('hashchange', () => navigate(window.location.hash || '/'));
+        if (window.location.hash) navigate(window.location.hash);
+    </script>
+</body>
+</html>
