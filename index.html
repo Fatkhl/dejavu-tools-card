@@ -185,6 +185,9 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 <div class="loading-bar"><div class="loading-bar-fill"></div></div>
 <div class="loading-pct" id="loadPct">0%</div>
 </div>
+<script>
+(function(){let pct=0;const el=document.getElementById('loadPct');const iv=setInterval(()=>{pct+=Math.floor(Math.random()*20)+10;if(pct>=100){pct=100;clearInterval(iv);el.textContent='100%';setTimeout(()=>{document.getElementById('loadingScreen').classList.add('hidden')},400)}else{el.textContent=pct+'%'}},200)})();
+</script>
 <div class="scroll-progress" id="scrollProgress" style="width:0%"></div>
 <div class="cyber-grid"></div>
 <div class="scanline"></div>
