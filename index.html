@@ -81,13 +81,29 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 .stats{grid-template-columns:repeat(2,1fr)}
 .hero-buttons{flex-direction:column;align-items:center}
 }
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(18,18,26,0.95);border:1px solid var(--accent);border-radius:12px;padding:14px 28px;color:var(--text);font-size:14px;z-index:9999;backdrop-filter:blur(10px);box-shadow:0 8px 30px rgba(255,45,85,0.3);transition:transform 0.4s ease,opacity 0.4s ease;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.hamburger{display:none;cursor:pointer;font-size:24px;color:var(--text)}
+@media(max-width:768px){.hamburger{display:block}.navbar-links{display:none;position:absolute;top:60px;left:0;right:0;background:rgba(11,11,15,0.95);backdrop-filter:blur(20px);flex-direction:column;padding:24px;gap:20px;border-bottom:1px solid var(--border)}.navbar-links.open{display:flex}}
+.typing-text{display:inline-block;overflow:hidden;white-space:nowrap;border-right:2px solid var(--accent);animation:typing 3s steps(40) 1s forwards,blink 0.7s step-end infinite}
+.card-3d{background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);border-radius:16px;padding:24px;position:relative;overflow:hidden;max-width:400px;margin:24px auto;aspect-ratio:1.6/1;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 20px 60px rgba(0,0,0,0.5);transition:transform 0.3s}
+.card-3d:hover{transform:perspective(1000px) rotateY(5deg) rotateX(3deg)}
+.card-3d::before{content:'';position:absolute;inset:0;background:linear-gradient(45deg,transparent 30%,rgba(255,45,85,0.1) 50%,transparent 70%);animation:holographic 3s ease-in-out infinite}
+@keyframes holographic{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
+.card-3d .card-brand{font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:2px}
+.card-3d .card-number{font-family:'JetBrains Mono',monospace;font-size:20px;letter-spacing:3px;margin:16px 0}
+.card-3d .card-bottom{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.7)}
+.download-btns{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.download-btns button{flex:1;min-width:120px}
 </style>
 </head>
 <body>
 <div class="cursor-glow" id="cursorGlow"></div>
 <nav class="navbar">
 <div class="navbar-brand" onclick="navigate('/')">⚡ DejaVu</div>
-<div class="navbar-links">
+<div class="hamburger" onclick="toggleMenu()">☰</div>
+<div class="navbar-links" id="navLinks">
 <a onclick="navigate('/')" class="nav-link active" data-page="landing">Home</a>
 <a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
 <a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
@@ -100,7 +116,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 <div class="hero">
 <div class="particles" id="particles"></div>
 <h1>Generate. Validate. Dominate.</h1>
-<p class="hero-sub">Premium credit card tools for developers & security researchers. Fast, accurate, and beautifully crafted.</p>
+<p class="hero-sub"><span class="typing-text">Premium credit card tools for developers & security researchers.</span></p>
 <div class="hero-buttons">
 <button class="btn-primary" onclick="navigate('/generate')">⚡ Generate Card</button>
 <button class="btn-secondary" onclick="navigate('/bin-lookup')">🔍 BIN Lookup</button>
@@ -166,7 +182,12 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 <div class="form-group"><label>Quantity (1-100)</label><input type="number" id="quantity" min="1" max="100" value="10"></div>
 <div class="form-group"><label>Network</label><select id="network"><option value="visa">Visa</option><option value="mastercard" selected>Mastercard</option><option value="amex">American Express</option></select></div>
 <button class="btn-primary" onclick="generateCards()" style="width:100%">⚡ GENERATE CARDS</button>
+<div class="download-btns" style="margin-top:16px">
+<button class="btn-secondary" onclick="downloadCSV()">💾 CSV</button>
+<button class="btn-secondary" onclick="downloadJSON()">📦 JSON</button>
 </div>
+</div>
+<div id="cardPreview"></div>
 <div id="output"></div>
 </div>
 </div>
@@ -202,7 +223,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle
 <div class="form-group"><label>Quantity (1-50)</label><input type="number" id="addressQty" min="1" max="50" value="5"></div>
 <div class="form-group"><label>Country</label>
 <select id="countrySelect">
-<option value="en_US" selected>🇺🇸 United States</option><option value="en_GB">🇬🇧 United Kingdom</option><option value="de_DE">🇩🇪 Germany</option><option value="fr_FR">🇫🇷 France</option><option value="it_IT">🇮🇹 Italy</option><option value="es_ES">🇪🇸 Spain</option><option value="pt_BR">🇧🇷 Brazil</option><option value="ja_JP">🇯🇵 Japan</option><option value="ko_KR">🇰🇷 South Korea</option><option value="zh_CN">🇨🇳 China</option><option value="zh_TW">🇹🇼 Taiwan</option><option value="id_ID">🇮🇩 Indonesia</option><option value="vi_VN">🇻🇳 Vietnam</option><option value="th_TH">🇹🇭 Thailand</option><option value="en_AU">🇦🇺 Australia</option><option value="en_CA">🇨🇦 Canada</option><option value="en_IN">🇮🇳 India</option><option value="en_NZ">🇳🇿 New Zealand</option><option value="en_ZA">🇿🇦 South Africa</option><option value="ru_RU">🇷🇺 Russia</option><option value="uk_UA">🇺🇦 Ukraine</option><option value="pl_PL">🇵🇱 Poland</option><option value="nl_NL">🇳🇱 Netherlands</option><option value="sv_SE">🇸🇪 Sweden</option><option value="nb_NO">🇳🇴 Norway</option><option value="da_DK">🇩🇰 Denmark</option><option value="fi_FI">🇫🇮 Finland</option><option value="tr_TR">🇹🇷 Turkey</option><option value="ar_SA">🇸🇦 Saudi Arabia</option><option value="fa_IR">🇮🇷 Iran</option><option value="he_IL">🇮🇱 Israel</option><option value="el_GR">🇬🇷 Greece</option><option value="hu_HU">🇭🇺 Hungary</option><option value="cs_CZ">🇨🇿 Czech Republic</option><option value="sk_SK">🇸🇰 Slovakia</option><option value="ro_RO">🇷🇴 Romania</option><option value="bg_BG">🇧🇬 Bulgaria</option><option value="hr_HR">🇭🇷 Croatia</option><option value="sr_RS">🇷🇸 Serbia</option><option value="sl_SI">🇸🇮 Slovenia</option><option value="lt_LT">🇱🇹 Lithuania</option><option value="lv_LV">🇱🇻 Latvia</option><option value="de_AT">🇦🇹 Austria</option><option value="de_CH">🇨🇭 Switzerland</option><option value="fr_BE">🇧🇪 Belgium</option><option value="es_AR">🇦🇷 Argentina</option><option value="es_MX">🇲🇽 Mexico</option><option value="pt_PT">🇵🇹 Portugal</option>
+<option value="en_US" selected>🇺🇸 United States</option><option value="en_GB">🇬🇧 United Kingdom</option><option value="de_DE">🇩🇪 Germany</option><option value="fr_FR">🇫🇷 France</option><option value="it_IT">🇮🇹 Italy</option><option value="es_ES">🇪🇸 Spain</option><option value="pt_BR">🇧🇷 Brazil</option><option value="ja_JP">🇯🇵 Japan</option><option value="ko_KR">🇰🇷 South Korea</option><option value="zh_CN">🇨🇳 China</option><option value="zh_TW">🇹🇼 Taiwan</option><option value="id_ID">🇮🇩 Indonesia</option><option value="vi_VN">🇻🇳 Vietnam</option><option value="th_TH">🇹🇭 Thailand</option><option value="en_AU">🇦🇺 Australia</option><option value="en_CA">🇨🇦 Canada</option><option value="en_IN">🇮🇳 India</option><option value="en_NZ">🇳🇿 New Zealand</option><option value="en_ZA">🇿🇦 South Africa</option><option value="ru_RU">🇷🇺 Russia</option><option value="uk_UA">🇺🇦 Ukraine</option><option value="pl_PL">🇵🇱 Poland</option><option value="nl_NL">🇳🇱 Netherlands</option><option value="sv_SE">🇸🇪 Sweden</option><option value="nb_NO">🇳🇴 Norway</option><option value="da_DK">🇩🇰 Denmark</option><option value="fi_FI">🇫🇮 Finland</option><option value="tr_TR">🇹🇷 Turkey</option><option value="ar_SA">🇸🇦 Saudi Arabia</option><option value="fa_IR">🇮🇷 Iran</option><option value="he_IL">🇮🇱 Israel</option><option value="el_GR">🇬🇷 Greece</option><option value="hu_HU">🇭🇺 Hungary</option><option value="cs_CZ">🇨🇿 Czech Republic</option><option value="sk_SK">🇸🇰 Slovakia</option><option value="ro_RO">🇷🇴 Romania</option><option value="bg_BG">🇧🇬 Bulgaria</option><option value="hr_HR">🇭🇷 Croatia</option><option value="sr_RS">🇷🇸 Serbia</option><option value="sl_SI">🇸🇮 Slovenia</option><option value="lt_LT">🇱🇹 Lithuania</option><option value="lv_LV">🇱🇻 Latvia</option><option value="de_AT">🇦🇹 Austria</option><option value="de_CH">🇨🇭 Switzerland</option><option value="fr_BE">🇧🇪 Belgium</option><option value="es_AR">🇦🇷 Argentina</option><option value="es_MX">🇲🇽 Mexico</option><option value="pt_PT">🇵🇹 Portugal... [truncated]
 </select>
 </div>
 <button class="btn-primary" onclick="generateAddress()" style="width:100%;margin-bottom:12px">🏠 GENERATE</button>
@@ -343,7 +364,7 @@ window.scrollTo(0,0);
 function generateCards(){
 const bin=document.getElementById('binInput').value||'515462';
 const qty=Math.min(parseInt(document.getElementById('quantity').value)||10,100);
-if(!bin||bin.length<6){alert('Enter valid BIN (6+ digits)');return}
+if(!bin||bin.length<6){showToast('⚠️ Enter valid BIN (6+ digits)');return}
 let cards=[];
 const names=['John Smith','Jane Doe','Michael Johnson','Sarah Williams','Robert Brown','Emily Davis','David Miller','Lisa Anderson','James Wilson','Maria Garcia'];
 for(let i=0;i<qty;i++){
@@ -365,12 +386,15 @@ output+=`<div class="card-item"><span>${s}</span><button class="btn-small" oncli
 });
 output+='</div></div>';
 document.getElementById('output').innerHTML=output;
+// 3D Card Preview
+const lastCard=cards[0];
+document.getElementById('cardPreview').innerHTML=`<div class="card-3d"><div class="card-brand">${document.getElementById('network').value.toUpperCase()}</div><div class="card-number">${lastCard.number.replace(/(.{4})/g,'$1 ').trim()}</div><div class="card-bottom"><div><div style="font-size:10px;opacity:0.5">VALID THRU</div>${lastCard.expiry}</div><div><div style="font-size:10px;opacity:0.5">CVV</div>${lastCard.cvv}</div><div><div style="font-size:10px;opacity:0.5">HOLDER</div>${lastCard.name}</div></div></div>`;
 }
 
 // BIN Lookup
 function lookupBin(){
 const bin=document.getElementById('binLookup').value;
-if(!bin||bin.length<6){alert('Enter valid BIN');return}
+if(!bin||bin.length<6){showToast('⚠️ Enter valid BIN');return}
 document.getElementById('binResult').innerHTML='<div class="glass-panel"><p>Loading...</p></div>';
 fetch(`https://lookup.binlist.net/${bin}`)
 .then(r=>r.json())
@@ -412,8 +436,8 @@ o+='</div></div>';
 document.getElementById('addressResult').innerHTML=o;
 }).catch(()=>{document.getElementById('addressResult').innerHTML='<div class="glass-panel"><p style="color:var(--accent)">API error. Try again.</p></div>'});
 }
-function copyAddr(i){const e=window.currentAddresses[i];navigator.clipboard.writeText(`Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}`).then(()=>alert('Copied!'))}
-function copyAllAddress(){if(!window.currentAddresses.length){alert('Generate first');return}let t='';window.currentAddresses.forEach(e=>{t+=`Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}\n\n`});navigator.clipboard.writeText(t).then(()=>alert('All copied!'))}
+function copyAddr(i){const e=window.currentAddresses[i];navigator.clipboard.writeText(`Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}`).then(()=>showToast('📋 Copied!'))}
+function copyAllAddress(){if(!window.currentAddresses.length){showToast('⚠️ Generate addresses first');return}let t='';window.currentAddresses.forEach(e=>{t+=`Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}\n\n`});navigator.clipboard.writeText(t).then(()=>showToast('📋 All copied!'))}
 
 // Cursor glow
 document.addEventListener('mousemove',e=>{const g=document.getElementById('cursorGlow');g.style.transform=`translate(${e.clientX-150}px,${e.clientY-150}px)`});
@@ -433,8 +457,42 @@ setTimeout(()=>{animateCount(document.getElementById('s1'),12400000,'+');animate
 window.addEventListener('hashchange',()=>{const h=window.location.hash.replace('#','')||'/';navigate(h)});
 if(window.location.hash)navigate(window.location.hash.replace('#',''));
 
+
+// Toast notification
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+// Override clipboard copy to use toast
+const origCopy=navigator.clipboard.writeText.bind(navigator.clipboard);
+navigator.clipboard.writeText=function(text){return origCopy(text).then(()=>showToast('📋 Copied to clipboard!'))}
+
+// Hamburger menu
+function toggleMenu(){document.getElementById('navLinks').classList.toggle('open')}
+
+// Download functions
+function downloadCSV(){
+if(!document.getElementById('output').innerHTML)return showToast('Generate cards first');
+const items=document.querySelectorAll('#output .card-item span');
+let csv='Number,Expiry,CVV,Name\n';
+items.forEach(el=>{const parts=el.textContent.split(' | ');csv+=parts.join(',')+"\n"});
+const blob=new Blob([csv],{type:'text/csv'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='cards.csv';a.click();
+showToast('💾 Downloaded as CSV');
+}
+function downloadJSON(){
+if(!document.getElementById('output').innerHTML)return showToast('Generate cards first');
+const items=document.querySelectorAll('#output .card-item span');
+let data=[];
+items.forEach(el=>{const p=el.textContent.split(' | ');data.push({number:p[0],expiry:p[1],cvv:p[2],name:p[3]})});
+const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='cards.json';a.click();
+showToast('💾 Downloaded as JSON');
+}
+
 // Init BIN table
 filterBins();
 </script>
+<div class="toast" id="toast"></div>
 </body>
 </html>
