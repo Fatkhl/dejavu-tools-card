@@ -293,14 +293,16 @@
         }
 
         function navigate(page) {
+            const pageId = page === '/' ? 'landing' : page.replace(/^[#\/]+/, '');
+            const pageEl = document.getElementById(pageId);
+            if (!pageEl) return;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            const pageId = page === '/' ? 'landing' : page.substring(1);
-            const pageEl = document.getElementById(pageId);
-            if (pageEl) pageEl.classList.add('active');
+            pageEl.classList.add('active');
             const link = document.querySelector(`[data-page="${pageId}"]`);
             if (link) link.classList.add('active');
-            window.location.hash = page === '/' ? '' : page;
+            const newHash = page === '/' ? '' : '#' + pageId;
+            if (window.location.hash !== newHash) window.location.hash = newHash;
         }
 
         function generateCards() {
@@ -380,8 +382,11 @@
             navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
         }
 
-        window.addEventListener('hashchange', () => navigate(window.location.hash || '/'));
-        if (window.location.hash) navigate(window.location.hash);
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.replace('#', '') || '/';
+            navigate(hash);
+        });
+        if (window.location.hash) navigate(window.location.hash.replace('#', ''));
     </script>
 </body>
 </html>
