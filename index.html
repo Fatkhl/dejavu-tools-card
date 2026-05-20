@@ -328,8 +328,13 @@
 
         function generateLuhn(bin) {
             const length = 16;
-            let num = bin + '0'.repeat(length - bin.length - 1);
-            let sum = 0, isEven = false;
+            // Fill remaining digits with random numbers
+            let num = bin;
+            while (num.length < length - 1) {
+                num += Math.floor(Math.random() * 10).toString();
+            }
+            // Calculate Luhn check digit
+            let sum = 0, isEven = true;
             for (let i = num.length - 1; i >= 0; i--) {
                 let digit = parseInt(num[i], 10);
                 if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
