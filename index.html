@@ -3,46 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DejaVu Tools Card — Premium CC Generator</title>
+    <title>DejaVu Tools Card</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-deep: #050508;
             --bg-surface: #0c0c14;
-            --bg-elevated: #13131f;
-            --border: rgba(124, 58, 237, 0.15);
-            --border-hover: rgba(124, 58, 237, 0.4);
             --accent-1: #7c3aed;
             --accent-2: #06b6d4;
-            --accent-3: #f59e0b;
-            --success: #10b981;
-            --danger: #ef4444;
             --text: #f0f0f5;
             --text-muted: #6b7280;
-            --text-dim: #374151;
-            --glow-purple: 0 0 20px rgba(124,58,237,0.3);
-            --glow-cyan: 0 0 20px rgba(6,182,212,0.3);
+            --border: rgba(124, 58, 237, 0.15);
         }
         body {
             background: var(--bg-deep);
             color: var(--text);
             font-family: 'Inter', sans-serif;
             line-height: 1.6;
-            overflow-x: hidden;
         }
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            background:
-                radial-gradient(circle at 20% 50%, rgba(124,58,237,0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%),
-                radial-gradient(circle at 50% 80%, rgba(245,158,11,0.03) 0%, transparent 50%);
+            background: radial-gradient(circle at 20% 50%, rgba(124,58,237,0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(6,182,212,0.05) 0%, transparent 50%);
             z-index: -1;
-            animation: bgPulse 8s ease-in-out infinite alternate;
         }
-        @keyframes bgPulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
         .navbar {
             background: rgba(12, 12, 20, 0.7);
             backdrop-filter: blur(16px);
@@ -80,55 +67,38 @@
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 32px;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: all 0.3s;
         }
         .glass-panel:hover {
-            border-color: var(--border-hover);
+            border-color: rgba(124, 58, 237, 0.4);
             box-shadow: 0 0 30px rgba(124, 58, 237, 0.1);
         }
         .btn-glow {
             background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
             border: none;
-            padding: 14px 32px;
-            border-radius: 12px;
+            padding: 12px 24px;
+            border-radius: 8px;
             color: white;
             font-weight: 600;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
             transition: all 0.3s;
             font-size: 14px;
         }
-        .btn-glow::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            border-radius: 14px;
-            z-index: -1;
-            filter: blur(12px);
-            opacity: 0.6;
+        .btn-glow:hover { transform: translateY(-2px); }
+        .btn-small {
+            background: var(--accent-1);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
             transition: opacity 0.3s;
         }
-        .btn-glow:hover::after { opacity: 1; }
-        .btn-glow:hover { transform: translateY(-2px); }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            padding: 14px 32px;
-            border-radius: 12px;
-            color: var(--text);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        .btn-outline:hover {
-            border-color: var(--border-hover);
-            box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
-        }
+        .btn-small:hover { opacity: 0.8; }
         .page { display: none; min-height: calc(100vh - 80px); padding: 64px 32px; }
         .page.active { display: block; }
+        .container { max-width: 1200px; margin: 0 auto; }
         .hero { text-align: center; margin-bottom: 80px; }
         .hero h1 {
             font-family: 'Space Grotesk', sans-serif;
@@ -140,34 +110,15 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        .hero-subtitle { font-size: 18px; color: var(--text-muted); margin-bottom: 32px; }
-        .hero-buttons { display: flex; gap: 16px; justify-content: center; margin-bottom: 64px; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 80px; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-bottom: 80px; }
         .stat-card { text-align: center; }
         .stat-number {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 48px;
             font-weight: 700;
             color: var(--accent-1);
-            margin-bottom: 8px;
         }
         .stat-label { color: var(--text-muted); font-size: 14px; }
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; margin-bottom: 80px; }
-        .feature-card {
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-        .feature-card:hover { transform: translateY(-8px); }
-        .feature-icon { font-size: 48px; margin-bottom: 16px; }
-        .feature-card h3 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 20px;
-            margin-bottom: 12px;
-        }
-        .feature-card p { color: var(--text-muted); font-size: 14px; margin-bottom: 16px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .generator-panel { max-width: 600px; margin: 0 auto 64px; }
         .form-group { margin-bottom: 24px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
         .form-group input, .form-group select {
@@ -191,37 +142,25 @@
             border-radius: 8px;
             padding: 16px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
+            font-size: 13px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            word-break: break-all;
         }
-        .card-copy {
-            background: var(--accent-1);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: opacity 0.3s;
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 32px; }
+        .result-card {
+            background: rgba(12, 12, 20, 0.7);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
         }
-        .card-copy:hover { opacity: 0.8; }
-        .resource-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-top: 32px; }
-        .resource-card {
-            glass-panel;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.3s;
-        }
-        .resource-card:hover { transform: translateY(-4px); }
-        .resource-icon { font-size: 40px; margin-bottom: 12px; }
-        .resource-tag { display: inline-block; background: rgba(124, 58, 237, 0.2); color: var(--accent-1); padding: 4px 12px; border-radius: 4px; font-size: 12px; margin-top: 12px; }
+        .result-card p { margin-bottom: 8px; font-size: 14px; }
+        .result-card strong { color: var(--accent-1); }
         @media (max-width: 768px) {
             .hero h1 { font-size: 40px; }
-            .navbar-links { gap: 16px; }
-            .features { grid-template-columns: 1fr; }
-            .hero-buttons { flex-direction: column; }
+            .stats { grid-template-columns: 1fr; }
+            .card-item { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -233,8 +172,6 @@
             <a onclick="navigate('/generate')" class="nav-link" data-page="generate">Generate</a>
             <a onclick="navigate('/bin-lookup')" class="nav-link" data-page="bin-lookup">BIN Lookup</a>
             <a onclick="navigate('/address')" class="nav-link" data-page="address">Address</a>
-            <a onclick="navigate('/about')" class="nav-link" data-page="about">About</a>
-            <a href="https://github.com/Fatkhl/dejavu-tools-card" target="_blank">GitHub ↗</a>
         </div>
     </nav>
 
@@ -242,64 +179,21 @@
         <div class="container">
             <div class="hero">
                 <h1>⚡ DejaVu Tools Card</h1>
-                <p class="hero-subtitle">Generate. Validate. Dominate.</p>
-                <p style="color: var(--text-muted); margin-bottom: 32px;">Premium credit card generator for developers & security researchers</p>
-                <div class="hero-buttons">
-                    <button class="btn-glow" onclick="navigate('/generate')">⚡ Generate</button>
-                    <button class="btn-outline" onclick="navigate('/about')">📖 Docs</button>
-                </div>
+                <p style="font-size: 18px; color: var(--text-muted); margin-bottom: 32px;">Generate. Validate. Dominate.</p>
             </div>
-
             <div class="stats">
                 <div class="stat-card">
-                    <div class="stat-number" id="stat1">0</div>
+                    <div class="stat-number" id="stat-cards">0</div>
                     <div class="stat-label">Cards Generated</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="stat2">0</div>
+                    <div class="stat-number" id="stat-countries">10</div>
                     <div class="stat-label">Countries</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="stat3">0</div>
+                    <div class="stat-number" id="stat-valid">0</div>
                     <div class="stat-label">Luhn Valid</div>
                 </div>
-            </div>
-
-            <div class="features">
-                <div class="glass-panel feature-card" onclick="navigate('/generate')">
-                    <div class="feature-icon">💳</div>
-                    <h3>CC Generator</h3>
-                    <p>Bulk generate valid credit cards with Luhn algorithm</p>
-                    <button class="btn-outline">Try →</button>
-                </div>
-                <div class="glass-panel feature-card" onclick="navigate('/bin-lookup')">
-                    <div class="feature-icon">🔍</div>
-                    <h3>BIN Lookup</h3>
-                    <p>Search BIN database, bank info, country & card type</p>
-                    <button class="btn-outline">Try →</button>
-                </div>
-                <div class="glass-panel feature-card" onclick="navigate('/address')">
-                    <div class="feature-icon">🏠</div>
-                    <h3>Address Generator</h3>
-                    <p>Generate fake identities & addresses (50+ countries)</p>
-                    <button class="btn-outline">Try →</button>
-                </div>
-            </div>
-
-            <h2 style="font-family: 'Space Grotesk', sans-serif; margin-top: 80px; margin-bottom: 32px;">🌐 External BIN Databases</h2>
-            <div class="resource-grid">
-                <a href="https://bincheck.io" target="_blank" class="glass-panel resource-card">
-                    <div class="resource-icon">🔍</div>
-                    <h3>BinCheck.io</h3>
-                    <p style="color: var(--text-muted); font-size: 14px;">Live BIN validation with bank details</p>
-                    <span class="resource-tag">Live Checker</span>
-                </a>
-                <a href="https://binlist.net" target="_blank" class="glass-panel resource-card">
-                    <div class="resource-icon">📊</div>
-                    <h3>BinList.net</h3>
-                    <p style="color: var(--text-muted); font-size: 14px;">Free open-source BIN lookup API</p>
-                    <span class="resource-tag">Free API</span>
-                </a>
             </div>
         </div>
     </div>
@@ -307,86 +201,78 @@
     <div id="generate" class="page">
         <div class="container">
             <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">💳 Credit Card Generator</h2>
-            <div class="glass-panel generator-panel">
+            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
                 <div class="form-group">
-                    <label>BIN Prefix (6-8 digits)</label>
+                    <label>BIN Prefix (optional, 6-8 digits)</label>
                     <input type="text" id="binInput" placeholder="515462" value="515462">
                 </div>
                 <div class="form-group">
-                    <label>Quantity</label>
-                    <select id="quantity">
-                        <option value="5">5</option>
-                        <option value="10" selected>10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                    </select>
+                    <label>Quantity (1-100)</label>
+                    <input type="number" id="quantity" min="1" max="100" value="10">
                 </div>
                 <div class="form-group">
-                    <label>Format</label>
-                    <select id="format">
-                        <option value="pipe" selected>number|mm/yy|cvv</option>
-                        <option value="json">JSON</option>
-                        <option value="csv">CSV</option>
-                        <option value="plain">Plain (number only)</option>
+                    <label>Network</label>
+                    <select id="network">
+                        <option value="visa">Visa</option>
+                        <option value="mastercard" selected>Mastercard</option>
+                        <option value="amex">American Express</option>
                     </select>
                 </div>
                 <button class="btn-glow" onclick="generateCards()" style="width: 100%;">⚡ GENERATE CARDS</button>
             </div>
-            <div id="output" style="margin-top: 32px;"></div>
+            <div id="output"></div>
         </div>
     </div>
 
     <div id="bin-lookup" class="page">
         <div class="container">
             <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🔍 BIN Lookup</h2>
-            <div class="glass-panel generator-panel">
+            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
                 <div class="form-group">
-                    <label>Enter BIN (6-8 digits)</label>
-                    <input type="text" id="binLookup" placeholder="515462">
+                    <label>Enter BIN (6 digits)</label>
+                    <input type="text" id="binLookup" placeholder="515462" maxlength="8">
                 </div>
                 <button class="btn-glow" onclick="lookupBin()" style="width: 100%;">🔍 LOOKUP</button>
             </div>
-            <div id="binResult" style="margin-top: 32px;"></div>
+            <div id="binResult"></div>
         </div>
     </div>
 
     <div id="address" class="page">
         <div class="container">
             <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 32px;">🏠 Address Generator</h2>
-            <div class="glass-panel generator-panel">
+            <div class="glass-panel" style="max-width: 600px; margin: 0 auto 64px;">
                 <div class="form-group">
-                    <label>Quantity</label>
-                    <select id="addressQty">
-                        <option value="5" selected>5</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
+                    <label>Country</label>
+                    <select id="countrySelect">
+                        <option value="kr">South Korea</option>
                     </select>
                 </div>
-                <button class="btn-glow" onclick="generateAddresses()" style="width: 100%;">🏠 GENERATE IDENTITIES</button>
+                <button class="btn-glow" onclick="generateAddress()" style="width: 100%; margin-bottom: 12px;">🏠 GENERATE ADDRESS</button>
+                <button class="btn-glow" onclick="copyAllAddress()" style="width: 100%; background: rgba(124, 58, 237, 0.5);">📋 COPY ALL</button>
             </div>
-            <div id="addressOutput" style="margin-top: 32px;"></div>
-        </div>
-    </div>
-
-    <div id="about" class="page">
-        <div class="container">
-            <div class="glass-panel" style="max-width: 800px; margin: 0 auto;">
-                <h2 style="font-family: 'Space Grotesk', sans-serif; margin-bottom: 24px;">⚠️ Disclaimer</h2>
-                <p style="margin-bottom: 16px;">DejaVu Tools Card is for educational and authorized testing purposes only.</p>
-                <p style="margin-bottom: 16px;">Unauthorized use of generated credit card information is illegal.</p>
-                <p style="margin-bottom: 16px;">Users are responsible for compliance with all applicable laws and regulations.</p>
-                <h3 style="font-family: 'Space Grotesk', sans-serif; margin-top: 32px; margin-bottom: 16px;">Tech Stack</h3>
-                <ul style="margin-left: 20px; margin-bottom: 16px;">
-                    <li>HTML5 + CSS3 + Vanilla JavaScript</li>
-                    <li>Luhn Algorithm for card validation</li>
-                    <li>Hash routing for SPA navigation</li>
-                    <li>Glassmorphism + Neon glow effects</li>
-                </ul>
-            </div>
+            <div id="addressResult"></div>
         </div>
     </div>
 
     <script>
+        const KOREA_ADDRESSES = [
+            { name: "Kim Min-jun", address: "123 Gangnam-gu, Seoul", city: "Seoul", country: "South Korea", zip: "06000", phone: "+82-2-1234-5678", email: "kim.minjun@example.kr" },
+            { name: "Lee Ji-woo", address: "456 Jongno-gu, Seoul", city: "Seoul", country: "South Korea", zip: "03000", phone: "+82-2-2345-6789", email: "lee.jiwoo@example.kr" },
+            { name: "Park Seo-yun", address: "789 Mapo-gu, Seoul", city: "Seoul", country: "South Korea", zip: "04000", phone: "+82-2-3456-7890", email: "park.seoyun@example.kr" },
+            { name: "Choi Hae-won", address: "321 Songpa-gu, Seoul", city: "Seoul", country: "South Korea", zip: "05500", phone: "+82-2-4567-8901", email: "choi.haewon@example.kr" },
+            { name: "Jung Min-ho", address: "654 Gangbuk-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01000", phone: "+82-2-5678-9012", email: "jung.minho@example.kr" },
+            { name: "Kang Ye-jin", address: "987 Seodaemun-gu, Seoul", city: "Seoul", country: "South Korea", zip: "03500", phone: "+82-2-6789-0123", email: "kang.yejin@example.kr" },
+            { name: "Yoon Ji-ho", address: "147 Dongdaemun-gu, Seoul", city: "Seoul", country: "South Korea", zip: "02500", phone: "+82-2-7890-1234", email: "yoon.jiho@example.kr" },
+            { name: "Lim Soo-jin", address: "258 Seongbuk-gu, Seoul", city: "Seoul", country: "South Korea", zip: "02800", phone: "+82-2-8901-2345", email: "lim.soujin@example.kr" },
+            { name: "Han Tae-oh", address: "369 Nowon-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01500", phone: "+82-2-9012-3456", email: "han.taeoh@example.kr" },
+            { name: "Oh Min-seo", address: "741 Dobong-gu, Seoul", city: "Seoul", country: "South Korea", zip: "01600", phone: "+82-2-0123-4567", email: "oh.minseo@example.kr" }
+        ];
+
+        let currentAddress = null;
+        let cardsGenerated = 0;
+        let luhnValid = 0;
+
         function luhnCheck(num) {
             let sum = 0, isEven = false;
             for (let i = num.length - 1; i >= 0; i--) {
@@ -397,6 +283,7 @@
             }
             return sum % 10 === 0;
         }
+
         function generateLuhn(bin) {
             const length = 16;
             let num = bin + '0'.repeat(length - bin.length - 1);
@@ -410,6 +297,12 @@
             const checkDigit = (10 - (sum % 10)) % 10;
             return num + checkDigit;
         }
+
+        function getRandomName() {
+            const names = ['John Smith', 'Jane Doe', 'Michael Johnson', 'Sarah Williams', 'Robert Brown', 'Emily Davis', 'David Miller', 'Lisa Anderson'];
+            return names[Math.floor(Math.random() * names.length)];
+        }
+
         function navigate(page) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
@@ -420,61 +313,86 @@
             if (link) link.classList.add('active');
             window.location.hash = page === '/' ? '' : page;
         }
+
         function generateCards() {
-            const bin = document.getElementById('binInput').value;
-            const qty = parseInt(document.getElementById('quantity').value);
-            const format = document.getElementById('format').value;
+            const bin = document.getElementById('binInput').value || '515462';
+            const qty = Math.min(parseInt(document.getElementById('quantity').value) || 10, 100);
+            const network = document.getElementById('network').value;
+
             if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+
             let cards = [];
             for (let i = 0; i < qty; i++) {
                 const cardNum = generateLuhn(bin);
                 const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
                 const year = String(Math.floor(Math.random() * 6) + 27).padStart(2, '0');
                 const cvv = String(Math.floor(Math.random() * 900) + 100);
-                if (format === 'pipe') cards.push(`${cardNum} | ${month}/${year} | ${cvv}`);
-                else if (format === 'json') cards.push({number: cardNum, expiry: `${month}/${year}`, cvv: cvv});
-                else if (format === 'csv') cards.push(`${cardNum},${month}/${year},${cvv}`);
-                else cards.push(cardNum);
+                const name = getRandomName();
+                cards.push({ number: cardNum, expiry: `${month}/${year}`, cvv, name });
+                if (luhnCheck(cardNum)) luhnValid++;
             }
-            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated Cards</h3>';
+
+            cardsGenerated += qty;
+            document.getElementById('stat-cards').textContent = cardsGenerated;
+            document.getElementById('stat-valid').textContent = luhnValid;
+
+            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated ' + qty + ' Cards</h3>';
             output += '<div class="output-cards">';
             cards.forEach(card => {
-                const cardStr = typeof card === 'string' ? card : JSON.stringify(card);
-                output += `<div class="card-item"><span>${cardStr}</span><button class="card-copy" onclick="navigator.clipboard.writeText('${cardStr.replace(/'/g, "\'")}')">📋 Copy</button></div>`;
+                const cardStr = `${card.number} | ${card.expiry} | ${card.cvv} | ${card.name}`;
+                output += `<div class="card-item"><span>${cardStr}</span><button class="btn-small" onclick="navigator.clipboard.writeText('${cardStr}')">📋 Copy</button></div>`;
             });
             output += '</div></div>';
             document.getElementById('output').innerHTML = output;
         }
+
         function lookupBin() {
             const bin = document.getElementById('binLookup').value;
-            if (!bin || bin.length < 6) { alert('Enter valid BIN'); return; }
-            const result = `<div class="glass-panel"><h3 style="margin-bottom: 16px;">BIN: ${bin}</h3><p><strong>Brand:</strong> Mastercard</p><p><strong>Type:</strong> Debit</p><p><strong>Bank:</strong> State Bank of India</p><p><strong>Country:</strong> 🇮🇳 India</p><button class="btn-glow" onclick="navigate('/generate')" style="margin-top: 16px;">⚡ Generate from this BIN</button></div>`;
-            document.getElementById('binResult').innerHTML = result;
+            if (!bin || bin.length < 6) { alert('Enter valid BIN (6+ digits)'); return; }
+
+            fetch(`https://lookup.binlist.net/${bin}`)
+                .then(r => r.json())
+                .then(data => {
+                    const result = `<div class="glass-panel">
+                        <h3 style="margin-bottom: 16px;">BIN: ${bin}</h3>
+                        <p><strong>Bank:</strong> ${data.bank?.name || 'Unknown'}</p>
+                        <p><strong>Country:</strong> ${data.country?.name || 'Unknown'} (${data.country?.alpha2 || 'N/A'})</p>
+                        <p><strong>Type:</strong> ${data.type || 'Unknown'}</p>
+                        <p><strong>Brand:</strong> ${data.brand || 'Unknown'}</p>
+                        <p><strong>Currency:</strong> ${data.country?.currency || 'Unknown'}</p>
+                    </div>`;
+                    document.getElementById('binResult').innerHTML = result;
+                })
+                .catch(e => {
+                    document.getElementById('binResult').innerHTML = '<div class="glass-panel"><p style="color: #ef4444;">BIN not found or API error</p></div>';
+                });
         }
-        function generateAddresses() {
-            const qty = parseInt(document.getElementById('addressQty').value);
-            const names = ['Rajesh Kumar', 'Priya Sharma', 'Amit Patel', 'Neha Singh', 'Vikram Reddy'];
-            const cities = ['Bengaluru', 'Mumbai', 'Delhi', 'Hyderabad', 'Chennai'];
-            let output = '<div class="glass-panel"><h3 style="margin-bottom: 16px;">Generated Identities</h3>';
-            output += '<div class="output-cards">';
-            for (let i = 0; i < qty; i++) {
-                const name = names[Math.floor(Math.random() * names.length)];
-                const city = cities[Math.floor(Math.random() * cities.length)];
-                const phone = '+91 ' + Math.floor(Math.random() * 9000000000 + 1000000000);
-                const address = `${Math.floor(Math.random() * 100) + 1}, ${city}`;
-                output += `<div class="card-item"><div><strong>${name}</strong><br>${address}<br>${phone}</div><button class="card-copy" onclick="navigator.clipboard.writeText('${name}\n${address}\n${phone}')">📋 Copy</button></div>`;
-            }
-            output += '</div></div>';
-            document.getElementById('addressOutput').innerHTML = output;
+
+        function generateAddress() {
+            currentAddress = KOREA_ADDRESSES[Math.floor(Math.random() * KOREA_ADDRESSES.length)];
+            const result = `<div class="glass-panel">
+                <h3 style="margin-bottom: 16px;">Generated Address</h3>
+                <div class="result-card">
+                    <p><strong>Name:</strong> ${currentAddress.name}</p>
+                    <p><strong>Address:</strong> ${currentAddress.address}</p>
+                    <p><strong>City:</strong> ${currentAddress.city}</p>
+                    <p><strong>Country:</strong> ${currentAddress.country}</p>
+                    <p><strong>ZIP:</strong> ${currentAddress.zip}</p>
+                    <p><strong>Phone:</strong> ${currentAddress.phone}</p>
+                    <p><strong>Email:</strong> ${currentAddress.email}</p>
+                </div>
+            </div>`;
+            document.getElementById('addressResult').innerHTML = result;
         }
+
+        function copyAllAddress() {
+            if (!currentAddress) { alert('Generate address first'); return; }
+            const text = `Name: ${currentAddress.name}\nAddress: ${currentAddress.address}\nCity: ${currentAddress.city}\nCountry: ${currentAddress.country}\nZIP: ${currentAddress.zip}\nPhone: ${currentAddress.phone}\nEmail: ${currentAddress.email}`;
+            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
+        }
+
         window.addEventListener('hashchange', () => navigate(window.location.hash || '/'));
         if (window.location.hash) navigate(window.location.hash);
-        // Animate stats on load
-        setTimeout(() => {
-            document.getElementById('stat1').textContent = '12.4M+';
-            document.getElementById('stat2').textContent = '50+';
-            document.getElementById('stat3').textContent = '99.9%';
-        }, 500);
     </script>
 </body>
 </html>
