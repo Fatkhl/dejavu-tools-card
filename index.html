@@ -237,6 +237,32 @@
                 <button class="btn-glow" onclick="lookupBin()" style="width: 100%;">🔍 LOOKUP</button>
             </div>
             <div id="binResult"></div>
+
+            <h3 style="font-family: 'Space Grotesk', sans-serif; margin-top: 48px; margin-bottom: 16px;">🏦 Popular BINs by Country</h3>
+            <div class="form-group" style="max-width: 400px; margin-bottom: 24px;">
+                <select id="binCountryFilter" onchange="filterBins()">
+                    <option value="all">All Countries</option>
+                    <option value="US">🇺🇸 United States</option>
+                    <option value="GB">🇬🇧 United Kingdom</option>
+                    <option value="CA">🇨🇦 Canada</option>
+                    <option value="AU">🇦🇺 Australia</option>
+                    <option value="IN">🇮🇳 India</option>
+                    <option value="ID">🇮🇩 Indonesia</option>
+                    <option value="KR">🇰🇷 South Korea</option>
+                    <option value="JP">🇯🇵 Japan</option>
+                    <option value="BR">🇧🇷 Brazil</option>
+                    <option value="DE">🇩🇪 Germany</option>
+                    <option value="FR">🇫🇷 France</option>
+                    <option value="MX">🇲🇽 Mexico</option>
+                    <option value="TR">🇹🇷 Turkey</option>
+                    <option value="RU">🇷🇺 Russia</option>
+                    <option value="NG">🇳🇬 Nigeria</option>
+                    <option value="PH">🇵🇭 Philippines</option>
+                    <option value="TH">🇹🇭 Thailand</option>
+                    <option value="MY">🇲🇾 Malaysia</option>
+                </select>
+            </div>
+            <div id="binTable" class="output-cards"></div>
         </div>
     </div>
 
@@ -475,6 +501,68 @@
             });
             navigator.clipboard.writeText(text).then(() => alert('All copied!'));
         }
+
+        const POPULAR_BINS = [
+            { bin: "414720", brand: "Visa", type: "Credit", bank: "Chase", country: "US", flag: "🇺🇸" },
+            { bin: "431940", brand: "Visa", type: "Debit", bank: "Chase", country: "US", flag: "🇺🇸" },
+            { bin: "515462", brand: "Mastercard", type: "Debit", bank: "SBI", country: "IN", flag: "🇮🇳" },
+            { bin: "524364", brand: "Mastercard", type: "Credit", bank: "Citibank", country: "US", flag: "🇺🇸" },
+            { bin: "438857", brand: "Visa", type: "Debit", bank: "BCA", country: "ID", flag: "🇮🇩" },
+            { bin: "421345", brand: "Visa", type: "Debit", bank: "BCA", country: "ID", flag: "🇮🇩" },
+            { bin: "455633", brand: "Visa", type: "Credit", bank: "Mandiri", country: "ID", flag: "🇮🇩" },
+            { bin: "539860", brand: "Mastercard", type: "Debit", bank: "Barclays", country: "GB", flag: "🇬🇧" },
+            { bin: "475127", brand: "Visa", type: "Credit", bank: "Barclays", country: "GB", flag: "🇬🇧" },
+            { bin: "459725", brand: "Visa", type: "Credit", bank: "HSBC", country: "GB", flag: "🇬🇧" },
+            { bin: "450875", brand: "Visa", type: "Credit", bank: "TD Bank", country: "CA", flag: "🇨🇦" },
+            { bin: "453278", brand: "Visa", type: "Credit", bank: "RBC", country: "CA", flag: "🇨🇦" },
+            { bin: "940010", brand: "Visa", type: "Credit", bank: "Shinhan", country: "KR", flag: "🇰🇷" },
+            { bin: "943100", brand: "Visa", type: "Credit", bank: "KB Kookmin", country: "KR", flag: "🇰🇷" },
+            { bin: "356800", brand: "JCB", type: "Credit", bank: "SMBC", country: "JP", flag: "🇯🇵" },
+            { bin: "435720", brand: "Visa", type: "Credit", bank: "MUFG", country: "JP", flag: "🇯🇵" },
+            { bin: "516732", brand: "Mastercard", type: "Credit", bank: "Itau", country: "BR", flag: "🇧🇷" },
+            { bin: "455187", brand: "Visa", type: "Credit", bank: "Bradesco", country: "BR", flag: "🇧🇷" },
+            { bin: "492181", brand: "Visa", type: "Debit", bank: "CommBank", country: "AU", flag: "🇦🇺" },
+            { bin: "453254", brand: "Visa", type: "Credit", bank: "ANZ", country: "AU", flag: "🇦🇺" },
+            { bin: "492130", brand: "Visa", type: "Credit", bank: "Deutsche Bank", country: "DE", flag: "🇩🇪" },
+            { bin: "516361", brand: "Mastercard", type: "Debit", bank: "Sparkasse", country: "DE", flag: "🇩🇪" },
+            { bin: "497010", brand: "Visa", type: "Credit", bank: "BNP Paribas", country: "FR", flag: "🇫🇷" },
+            { bin: "516308", brand: "Mastercard", type: "Credit", bank: "Credit Agricole", country: "FR", flag: "🇫🇷" },
+            { bin: "415565", brand: "Visa", type: "Credit", bank: "Banamex", country: "MX", flag: "🇲🇽" },
+            { bin: "546616", brand: "Mastercard", type: "Credit", bank: "Banorte", country: "MX", flag: "🇲🇽" },
+            { bin: "489458", brand: "Visa", type: "Debit", bank: "Garanti", country: "TR", flag: "🇹🇷" },
+            { bin: "521085", brand: "Mastercard", type: "Credit", bank: "Isbank", country: "TR", flag: "🇹🇷" },
+            { bin: "427229", brand: "Visa", type: "Debit", bank: "Sberbank", country: "RU", flag: "🇷🇺" },
+            { bin: "546918", brand: "Mastercard", type: "Credit", bank: "Tinkoff", country: "RU", flag: "🇷🇺" },
+            { bin: "539923", brand: "Mastercard", type: "Debit", bank: "GTBank", country: "NG", flag: "🇳🇬" },
+            { bin: "506099", brand: "Verve", type: "Debit", bank: "Access Bank", country: "NG", flag: "🇳🇬" },
+            { bin: "453985", brand: "Visa", type: "Credit", bank: "BDO", country: "PH", flag: "🇵🇭" },
+            { bin: "541673", brand: "Mastercard", type: "Credit", bank: "BPI", country: "PH", flag: "🇵🇭" },
+            { bin: "418564", brand: "Visa", type: "Debit", bank: "Bangkok Bank", country: "TH", flag: "🇹🇭" },
+            { bin: "552288", brand: "Mastercard", type: "Credit", bank: "Kasikorn", country: "TH", flag: "🇹🇭" },
+            { bin: "455036", brand: "Visa", type: "Credit", bank: "Maybank", country: "MY", flag: "🇲🇾" },
+            { bin: "535426", brand: "Mastercard", type: "Credit", bank: "CIMB", country: "MY", flag: "🇲🇾" }
+        ];
+
+        function filterBins() {
+            const country = document.getElementById('binCountryFilter').value;
+            const filtered = country === 'all' ? POPULAR_BINS : POPULAR_BINS.filter(b => b.country === country);
+            let output = '';
+            filtered.forEach(b => {
+                output += `<div class="card-item" style="cursor: pointer;" onclick="useBin('${b.bin}')">
+                    <span>${b.flag} <strong>${b.bin}</strong> | ${b.brand} | ${b.type} | ${b.bank}</span>
+                    <button class="btn-small" onclick="event.stopPropagation(); navigator.clipboard.writeText('${b.bin}')">📋</button>
+                </div>`;
+            });
+            document.getElementById('binTable').innerHTML = output;
+        }
+
+        function useBin(bin) {
+            document.getElementById('binInput').value = bin;
+            navigate('/generate');
+        }
+
+        // Init BIN table on page load
+        filterBins();
 
         window.addEventListener('hashchange', () => {
             const hash = window.location.hash.replace('#', '') || '/';
