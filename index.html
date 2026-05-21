@@ -388,6 +388,8 @@ setTimeout(tick,500);
 
 <script>
 // BIN Database
+let cardsGenerated=0,luhnValid=0;
+window.currentAddresses=[];
 const POPULAR_BINS=[
 {bin:"414720",brand:"Visa",type:"Credit",bank:"Chase",country:"US",flag:"🇺🇸"},
 {bin:"431940",brand:"Visa",type:"Debit",bank:"Chase",country:"US",flag:"🇺🇸"},
@@ -491,8 +493,6 @@ const POPULAR_BINS=[
 {bin:"524619",brand:"Mastercard",type:"Credit",bank:"HNB",country:"LK",flag:"🇱🇰"}
 ];
 
-let cardsGenerated=0,luhnValid=0;
-window.currentAddresses=[];
 
 // Luhn
 function luhnCheck(n){let s=0,e=false;for(let i=n.length-1;i>=0;i--){let d=parseInt(n[i],10);if(e){d*=2;if(d>9)d-=9}s+=d;e=!e}return s%10===0}
