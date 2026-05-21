@@ -550,3 +550,180 @@ const POPULAR_BINS=[
 function luhnCheck(n){let s=0,e=false;for(let i=n.length-1;i>=0;i--){let d=parseInt(n[i],10);if(e){d*=2;if(d>9)d-=9}s+=d;e=!e}return s%10===0}
 function generateLuhn(bin){const len=16;let num=bin;while(num.length<len-1)num+=Math.floor(Math.random()*10).toString();let sum=0,isEven=true;for(let i=num.length-1;i>=0;i--){let d=parseInt(num[i],10);if(isEven){d*=2;if(d>9)d-=9}sum+=d;isEven=!isEven}return num+((10-(sum%10))%10)}
 
+
+// Navigate
+function navigate(page){
+const pageId=page==='/'?'landing':page.replace(/^[#\/]+/,'');
+const el=document.getElementById(pageId);
+if(!el)return;
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+el.classList.add('active');
+const link=document.querySelector(`[data-page="${pageId}"]`);
+if(link)link.classList.add('active');
+const newHash=page==='/'?'':'#'+pageId;
+if(window.location.hash!==newHash)window.location.hash=newHash;
+window.scrollTo(0,0);
+if(typeof updateDock==='function')updateDock(pageId);
+}
+
+// Generate Cards
+function generateCards(){
+const bin=document.getElementById('binInput').value||'515462';
+const qty=Math.min(parseInt(document.getElementById('quantity').value)||10,100);
+if(!bin||bin.length<6){showToast('Enter valid BIN (6+ digits)');return}
+const names=['John Smith','Jane Doe','Michael Johnson','Sarah Williams','Robert Brown','Emily Davis','David Miller','Lisa Anderson'];
+let cards=[];
+for(let i=0;i<qty;i++){
+const cardNum=generateLuhn(bin);
+const month=String(Math.floor(Math.random()*12)+1).padStart(2,'0');
+const year=String(Math.floor(Math.random()*6)+27).padStart(2,'0');
+const cvv=String(Math.floor(Math.random()*900)+100);
+const name=names[Math.floor(Math.random()*names.length)];
+cards.push({number:cardNum,expiry:`${month}/${year}`,cvv,name});
+if(luhnCheck(cardNum))luhnValid++;
+}
+cardsGenerated+=qty;
+document.getElementById('s1').textContent=cardsGenerated.toLocaleString();
+document.getElementById('s3').textContent=luhnValid.toLocaleString();
+let output='<div class="glass-panel"><h3 style="margin-bottom:16px;font-family:Space Grotesk,sans-serif;">Generated '+qty+' Cards</h3><div class="output-cards">';
+cards.forEach(c=>{
+const s=`${c.number} | ${c.expiry} | ${c.cvv} | ${c.name}`;
+output+=`<div class="card-item"><span>${s}</span><button class="btn-small" onclick="navigator.clipboard.writeText('${s}')">📋</button></div>`;
+});
+output+='</div></div>';
+document.getElementById('output').innerHTML=output;
+const lc=cards[0];
+const cp=document.getElementById('cardPreview');
+if(cp)cp.innerHTML=`<div class="card-3d"><div class="card-brand">${document.getElementById('network').value.toUpperCase()}</div><div class="card-number">${lc.number.replace(/(.{4})/g,'$1 ').trim()}</div><div class="card-bottom"><div><div style="font-size:10px;opacity:0.5">VALID THRU</div>${lc.expiry}</div><div><div style="font-size:10px;opacity:0.5">CVV</div>${lc.cvv}</div><div><div style="font-size:10px;opacity:0.5">HOLDER</div>${lc.name}</div></div></div>`;
+}
+
+// BIN Lookup
+function lookupBin(){
+const bin=document.getElementById('binLookup').value;
+if(!bin||bin.length<6){showToast('Enter valid BIN');return}
+document.getElementById('binResult').innerHTML='<div class="glass-panel"><p>Loading...</p></div>';
+fetch(`https://lookup.binlist.net/${bin}`).then(r=>r.json()).then(d=>{
+document.getElementById('binResult').innerHTML=`<div class="glass-panel"><h3 style="margin-bottom:16px">BIN: ${bin}</h3><p><strong>Bank:</strong> ${d.bank?.name||'Unknown'}</p><p><strong>Country:</strong> ${d.country?.name||'Unknown'}</p><p><strong>Type:</strong> ${d.type||'Unknown'}</p><p><strong>Brand:</strong> ${d.brand||'Unknown'}</p></div>`;
+}).catch(()=>{document.getElementById('binResult').innerHTML='<div class="glass-panel"><p style="color:var(--accent)">BIN not found</p></div>'});
+}
+
+// Filter BINs
+function filterBins(){
+const c=document.getElementById('binCountryFilter').value;
+const f=c==='all'?POPULAR_BINS:POPULAR_BINS.filter(b=>b.country===c);
+let o='';
+f.forEach(b=>{o+=`<div class="card-item" style="cursor:pointer" onclick="document.getElementById('binInput').value='${b.bin}';navigate('/generate')"><span>${b.flag} <strong>${b.bin}</strong> | ${b.brand} | ${b.type} | ${b.bank}</span><button class="btn-small" onclick="event.stopPropagation();navigator.clipboard.writeText('${b.bin}')">📋</button></div>`;});
+document.getElementById('binTable').innerHTML=o;
+}
+
+// Address Generator
+function generateAddress(){
+const locale=document.getElementById('countrySelect').value;
+const qty=Math.min(parseInt(document.getElementById('addressQty').value)||5,50);
+const LOCALE_COUNTRY={en_US:'United States',en_GB:'United Kingdom',de_DE:'Germany',fr_FR:'France',it_IT:'Italy',es_ES:'Spain',pt_BR:'Brazil',ja_JP:'Japan',ko_KR:'South Korea',zh_CN:'China',zh_TW:'Taiwan',id_ID:'Indonesia',vi_VN:'Vietnam',th_TH:'Thailand',en_AU:'Australia',en_CA:'Canada',en_IN:'India',en_NZ:'New Zealand',en_ZA:'South Africa',ru_RU:'Russia',uk_UA:'Ukraine',pl_PL:'Poland',nl_NL:'Netherlands',sv_SE:'Sweden',nb_NO:'Norway',da_DK:'Denmark',fi_FI:'Finland',tr_TR:'Turkey',ar_SA:'Saudi Arabia',fa_IR:'Iran',he_IL:'Israel',el_GR:'Greece',hu_HU:'Hungary',cs_CZ:'Czech Republic',sk_SK:'Slovakia',ro_RO:'Romania',bg_BG:'Bulgaria',hr_HR:'Croatia',sr_RS:'Serbia',sl_SI:'Slovenia',lt_LT:'Lithuania',lv_LV:'Latvia',de_AT:'Austria',de_CH:'Switzerland',fr_BE:'Belgium',es_AR:'Argentina',es_MX:'Mexico',pt_PT:'Portugal'};
+const countryName=LOCALE_COUNTRY[locale]||locale;
+document.getElementById('addressResult').innerHTML='<div class="glass-panel"><p>Loading...</p></div>';
+Promise.all([
+fetch(`https://fakerapi.it/api/v2/addresses?_quantity=${qty}&_locale=${locale}`).then(r=>r.json()),
+fetch(`https://fakerapi.it/api/v2/persons?_quantity=${qty}&_locale=${locale}`).then(r=>r.json())
+]).then(([a,p])=>{
+window.currentAddresses=[];
+let o='<div class="glass-panel"><h3 style="margin-bottom:16px">Generated '+qty+' — '+countryName+'</h3><div class="output-cards">';
+for(let i=0;i<qty;i++){
+const addr=a.data[i],person=p.data[i];
+const entry={name:`${person.firstname} ${person.lastname}`,address:`${addr.street} ${addr.buildingNumber}`,city:addr.city,country:countryName,zip:addr.zipcode,phone:person.phone,email:person.email};
+window.currentAddresses.push(entry);
+o+=`<div class="result-card"><p><strong>Name:</strong> ${entry.name}</p><p><strong>Address:</strong> ${entry.address}</p><p><strong>City:</strong> ${entry.city}</p><p><strong>Country:</strong> ${entry.country}</p><p><strong>ZIP:</strong> ${entry.zip}</p><p><strong>Phone:</strong> ${entry.phone}</p><p><strong>Email:</strong> ${entry.email}</p><button class="btn-small" onclick="copyAddr(${i})" style="margin-top:8px">📋</button></div>`;
+}
+o+='</div></div>';
+document.getElementById('addressResult').innerHTML=o;
+}).catch(()=>{document.getElementById('addressResult').innerHTML='<div class="glass-panel"><p style="color:var(--accent)">API error</p></div>'});
+}
+function copyAddr(i){const e=window.currentAddresses[i];navigator.clipboard.writeText(`Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}`)}
+function copyAllAddress(){if(!window.currentAddresses.length){showToast('Generate first');return}let t='';window.currentAddresses.forEach(e=>{t+=`Name: ${e.name}\nAddress: ${e.address}\nCity: ${e.city}\nCountry: ${e.country}\nZIP: ${e.zip}\nPhone: ${e.phone}\nEmail: ${e.email}\n\n`});navigator.clipboard.writeText(t)}
+
+// Tools
+function showTool(id){['checker','mass','extractor','formatter'].forEach(t=>{const el=document.getElementById('tool-'+t);if(el)el.style.display=t===id?'block':'none'})}
+function checkCards(){
+const input=document.getElementById('checkerInput').value.trim();
+if(!input){showToast('Paste cards first');return}
+const lines=input.split('\n').filter(l=>l.trim());
+let live=0,die=0;
+let output='<div class="output-cards">';
+lines.forEach(line=>{const parts=line.replace(/\s/g,'').split(/[|,]/);const num=parts[0]||'';const valid=luhnCheck(num)&&num.length>=13&&num.length<=19;if(valid)live++;else die++;output+=`<div class="card-item"><span>${valid?'✅':'❌'} ${line.trim()}</span><span style="color:${valid?'#10b981':'#ef4444'};font-weight:600">${valid?'LIVE':'DIE'}</span></div>`;});
+output+='</div>';
+document.getElementById('checkerResult').innerHTML=`<div style="display:flex;gap:24px;margin-bottom:16px"><div style="color:#10b981;font-weight:600">✅ Live: ${live}</div><div style="color:#ef4444;font-weight:600">❌ Die: ${die}</div></div>`+output;
+}
+function massGenerate(){
+const bin=document.getElementById('massBin').value||'515462';
+const qty=Math.min(parseInt(document.getElementById('massQty').value)||1000,5000);
+if(!bin||bin.length<6){showToast('Enter valid BIN');return}
+document.getElementById('massProgress').style.display='block';
+document.getElementById('massResult').innerHTML='';
+let cards=[];let i=0;const bs=50;
+function batch(){const end=Math.min(i+bs,qty);for(;i<end;i++){const cn=generateLuhn(bin);const m=String(Math.floor(Math.random()*12)+1).padStart(2,'0');const y=String(Math.floor(Math.random()*6)+27).padStart(2,'0');const cv=String(Math.floor(Math.random()*900)+100);cards.push(`${cn}|${m}/${y}|${cv}`);}
+const pct=Math.floor((i/qty)*100);document.getElementById('massBar').style.width=pct+'%';document.getElementById('massPct').textContent=pct+'% ('+i+'/'+qty+')';
+if(i<qty){setTimeout(batch,10)}else{document.getElementById('massPct').textContent='100% Done!';const blob=new Blob([cards.join('\n')],{type:'text/plain'});const url=URL.createObjectURL(blob);document.getElementById('massResult').innerHTML=`<div class="card-item"><span>${qty} cards generated</span><a href="${url}" download="cards_${bin}.txt" class="btn-small">💾 Download</a></div>`;cardsGenerated+=qty;luhnValid+=qty;showToast(qty+' cards generated!');}}
+batch();
+}
+function extractBins(){
+const input=document.getElementById('extractorInput').value.trim();
+if(!input){showToast('Paste cards first');return}
+const lines=input.split('\n').filter(l=>l.trim());const bins={};
+lines.forEach(line=>{const num=line.replace(/\s/g,'').split(/[|,]/)[0]||'';if(num.length>=6){const bin=num.substring(0,6);bins[bin]=(bins[bin]||0)+1}});
+const sorted=Object.entries(bins).sort((a,b)=>b[1]-a[1]);
+let output=`<div style="margin-bottom:16px;color:var(--muted)">Found ${sorted.length} unique BINs</div><div class="output-cards">`;
+sorted.forEach(([bin,count])=>{output+=`<div class="card-item"><span><strong>${bin}</strong> — ${count} cards</span><button class="btn-small" onclick="document.getElementById('binInput').value='${bin}';navigate('/generate')">Generate</button></div>`;});
+document.getElementById('extractorResult').innerHTML=output+'</div>';
+}
+function formatCards(){
+const input=document.getElementById('formatterInput').value.trim();
+const format=document.getElementById('formatterFormat').value;
+if(!input){showToast('Paste cards first');return}
+const lines=input.split('\n').filter(l=>l.trim());let formatted=[];
+lines.forEach(line=>{const parts=line.replace(/\s+/g,' ').trim().split(/[|,\s]+/);const num=parts[0]||'';const exp=parts[1]||'';const cvv=parts[2]||'';
+if(format==='pipe')formatted.push(`${num}|${exp}|${cvv}`);
+else if(format==='csv')formatted.push(`${num},${exp},${cvv}`);
+else if(format==='json')formatted.push(JSON.stringify({number:num,expiry:exp,cvv}));
+else formatted.push(num);});
+const result=format==='json'?'[\n'+formatted.join(',\n')+'\n]':formatted.join('\n');
+document.getElementById('formatterResult').innerHTML=`<div class="card-item" style="flex-direction:column;align-items:stretch"><pre style="white-space:pre-wrap;word-break:break-all;margin-bottom:12px;max-height:300px;overflow-y:auto">${result}</pre><button class="btn-small" onclick="navigator.clipboard.writeText(document.querySelector('#formatterResult pre').textContent)">📋 Copy</button></div>`;
+}
+
+// Toast
+function showToast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+// Hamburger
+function toggleMenu(){document.getElementById('navLinks').classList.toggle('open')}
+// Download
+function downloadCSV(){const items=document.querySelectorAll('#output .card-item span');if(!items.length)return showToast('Generate first');let csv='Number,Expiry,CVV,Name\n';items.forEach(el=>{csv+=el.textContent.split(' | ').join(',')+'\n'});const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='cards.csv';a.click();showToast('Downloaded CSV')}
+function downloadJSON(){const items=document.querySelectorAll('#output .card-item span');if(!items.length)return showToast('Generate first');let data=[];items.forEach(el=>{const p=el.textContent.split(' | ');data.push({number:p[0],expiry:p[1],cvv:p[2],name:p[3]})});const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='cards.json';a.click();showToast('Downloaded JSON')}
+
+// Cursor
+document.addEventListener('mousemove',e=>{const g=document.getElementById('cursorGlow');if(g)g.style.transform=`translate(${e.clientX-150}px,${e.clientY-150}px)`;const trail=document.getElementById('cursorTrail');if(trail){trail.style.left=e.clientX-4+'px';trail.style.top=e.clientY-4+'px';trail.style.opacity='0.6';clearTimeout(trail._t);trail._t=setTimeout(()=>{trail.style.opacity='0'},300)}});
+// Particles
+(function(){const c=document.getElementById('particles');if(!c)return;for(let i=0;i<20;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.top=Math.random()*100+'%';p.style.animationDelay=Math.random()*8+'s';p.style.animationDuration=(6+Math.random()*6)+'s';c.appendChild(p)}})();
+// Ripple
+document.addEventListener('click',e=>{const btn=e.target.closest('.btn-primary,.btn-secondary');if(!btn)return;const r=document.createElement('span');r.className='ripple';const rect=btn.getBoundingClientRect();r.style.left=e.clientX-rect.left+'px';r.style.top=e.clientY-rect.top+'px';btn.appendChild(r);setTimeout(()=>r.remove(),600)});
+// Terminal
+(function(){const cmds=['> initializing...','> BIN database connected','> API status ✓','> encryption enabled','> system ready.','> card generated ✓','> BIN 515462 verified','> monitoring active...'];const el=document.getElementById('terminalContent');if(!el)return;let i=0;function add(){const line=document.createElement('div');line.className='terminal-line';line.innerHTML=cmds[i%cmds.length].replace('>','<span>></span>');el.appendChild(line);if(el.children.length>8)el.removeChild(el.firstChild);i++;setTimeout(add,2000)}setTimeout(add,3000)})();
+// Scroll progress
+window.addEventListener('scroll',()=>{const h=document.documentElement.scrollHeight-window.innerHeight;const p=h>0?(window.scrollY/h)*100:0;const el=document.getElementById('scrollProgress');if(el)el.style.width=p+'%'});
+// Fade up
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+// Counter
+function animateCount(el,target,suffix=''){if(!el)return;let c=0;const step=target/60;const t=setInterval(()=>{c+=step;if(c>=target){c=target;clearInterval(t)}el.textContent=Math.floor(c).toLocaleString()+suffix},30)}
+setTimeout(()=>{animateCount(document.getElementById('s1'),12400000,'+');animateCount(document.getElementById('s2'),50,'+');animateCount(document.getElementById('s3'),99,'%');animateCount(document.getElementById('s4'),2400,'+')},500);
+// 3D tilt
+document.querySelectorAll('.feature-card').forEach(card=>{card.addEventListener('mousemove',e=>{const rect=card.getBoundingClientRect();const x=(e.clientX-rect.left)/rect.width-0.5;const y=(e.clientY-rect.top)/rect.height-0.5;card.style.transform=`perspective(1000px) rotateY(${x*10}deg) rotateX(${-y*10}deg) translateY(-4px) scale(1.01)`});card.addEventListener('mouseleave',()=>{card.style.transform=''})});
+// Mobile dock
+function updateDock(pageId){document.querySelectorAll('.dock-item').forEach((d,i)=>{d.classList.remove('active');const pages=['landing','generate','bin-lookup','address','tools'];if(pages[i]===pageId)d.classList.add('active')})}
+// Hash routing
+window.addEventListener('hashchange',()=>{const h=window.location.hash.replace('#','')||'/';navigate(h)});
+if(window.location.hash)navigate(window.location.hash.replace('#',''));
+// Init
+filterBins();
+</script>
+</body>
+</html>
