@@ -660,7 +660,13 @@ function copyAllAddress(){if(!window.currentAddresses.length){showToast('Generat
 
 // Tools
 function showTool(id){['checker','mass','extractor','formatter'].forEach(t=>{const el=document.getElementById('tool-'+t);if(el)el.style.display=t===id?'block':'none'})}
+let checkerAbort=null;
 function checkCards(){
+// Cancel previous check
+if(checkerAbort){checkerAbort.cancelled=true}
+checkerAbort={cancelled:false};
+const currentRun=checkerAbort;
+
 const input=document.getElementById('checkerInput').value.trim();
 if(!input){showToast('Paste cards first');return}
 const lines=input.split('\n').filter(l=>l.trim());
@@ -669,6 +675,7 @@ let results=[];let done=0;let monLive=0,monDie=0,monUnk=0;
 const PK='pk_test_51TZNcTKxBQEpYz4ziZmCIfV8nFeUf5I646ligeBBQxubLGZSpd0DWkLiBlx1oFbK55Csqm5G46bZf9BVvouiSHw80037PIquGu';
 
 function checkOne(idx){
+if(currentRun.cancelled)return;
 if(idx>=lines.length){
 // Show results
 let live=results.filter(r=>r.status==='LIVE').length;
