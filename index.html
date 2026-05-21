@@ -343,6 +343,17 @@ setTimeout(tick,500);
 </div>
 <div id="cardPreview"></div>
 <div id="output"></div>
+
+<div class="glass-panel" style="max-width:700px;margin:48px auto 0;">
+<h3 style="font-family:'Space Grotesk',sans-serif;margin-bottom:16px;">✅ CC Live Checker</h3>
+<p style="color:var(--muted);font-size:13px;margin-bottom:16px;">Paste cards atau check hasil generate di atas</p>
+<div class="form-group"><textarea id="checkerInput" rows="5" style="width:100%;padding:12px;background:rgba(11,11,15,0.8);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;resize:vertical" placeholder="5154620057224238|05/29|579&#10;4147200012345678|12/28|123"></textarea></div>
+<div style="display:flex;gap:12px">
+<button class="btn-primary" onclick="checkCards()" style="flex:1">✅ CHECK LIVE/DIE</button>
+<button class="btn-secondary" onclick="autoFillChecker()" style="flex:1">📋 Auto-fill from Generate</button>
+</div>
+<div id="checkerResult" style="margin-top:24px"></div>
+</div>
 </div>
 </div>
 
@@ -757,6 +768,8 @@ document.getElementById('formatterResult').innerHTML=`<div class="card-item" sty
 
 // Toast
 function showToast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+// Auto-fill checker from generated cards
+function autoFillChecker(){const items=document.querySelectorAll('#output .card-item span');if(!items.length){showToast('Generate cards first');return}let lines=[];items.forEach(el=>{const p=el.textContent.split(' | ');if(p.length>=3)lines.push(`${p[0]}|${p[1]}|${p[2]}`)});document.getElementById('checkerInput').value=lines.join('\n');showToast('📋 Cards loaded to checker')}
 // Hamburger
 function toggleMenu(){document.getElementById('navLinks').classList.toggle('open')}
 // Download
